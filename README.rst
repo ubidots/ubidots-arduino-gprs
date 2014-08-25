@@ -1,159 +1,161 @@
-Ubidots-Arduino
-===============
+Ubidots-Arduino-GPRS
+=====================
 
-Ubidots-Arduino is an Arduino library for interacting with Ubidots through its API. 
-The library also contains the code to connect to your WiFi network.
+Ubidots-Arduino-GPRS provides an example of sending data to Ubidots from the GPRS shield, which used the SIM900.
 
-Note: This code has been tested ONLY with the official Arduino WiFi Shield: http://arduino.cc/en/Main/ArduinoWiFiShield
-We can't guarantee that it will work with different WiFi modules.
-
-Install the Library
--------------------
-
-1. Download the library as a ZIP file here: https://github.com/ubidots/ubidots-arduino/blob/master/Library/Ubidots.zip?raw=true
-
-2. Open the Arduino IDE and go to "Sketch" --> "Import Library" --> "Add Library".
-
-3. Select the downloaded ZIP file
-
-4. Restart the Arduino IDE, you should then see Ubidots examples under "File" --> "Examples" --> "Ubidots"
-
+What you'll need:
+--------------
+* Arduino uno
+* GPRS shield SIM900
 
 A Quick example
 ----------------
-Here's a quick example of how to use the library, with the serial terminal of Arduino:
+Here's a quick example of how to post an analogue value to Ubidots.
 
 
 .. code-block:: cpp
 
-  /*
-  Analog Read example for Ubidots 
+        /*
+         Basic sketch for GPRS shield sim900
+         
+         This is a basic example to post a value on Ubidots with a simple
+         function "save_value".
+         
+         You need:
+         * Arduino 1
+         * GPRS shield
+         
+         
+         Pins' connection
+         Arduino       WiFly
+          7    <---->    TX
+          8    <---->    RX
+         
+         created 20 Aug. 2014
+         by Mateo Velez - Metavix
+         
+         This example code is in the public domain.
+ 
+        */
+ 
+        //--------------------------------------------------------------
+        //------------------------------Libraries-----------------------
+        //--------------------------------------------------------------
+        #include <SoftwareSerial.h>
+        #include <String.h> 
+        SoftwareSerial mySerial(7, 8);                                                      //your pins to serial communication
+        int valor; 
+        //-------------------------------------------------------------
+        //---------------------Ubidots Configuration-------------------
+        //-------------------------------------------------------------
+        String token = "tShIxUgpfmyWpsz0ZKtFdLDxiPmubDqBuGcI8NzlAuN5GK8ynfd0XDpRZH0R";      //your token to post value
+        String idvariable = "53baaf3c76254244e1c8e408";                                     //ID of your variable
+        void setup()
+        {
+          
+          mySerial.begin(19200);                                                            //the GPRS baud rate   
+          Serial.begin(19200);                                                              //the serial communication baud rate   
+          delay(10000);
+        }
+         
+        void loop()
+        {
+            int value = analogRead(A0);                                                     //read pin A0 of arduino
+            save_value(String(value));                                                      //call the save_value function
+            if (mySerial.available())
+            Serial.write(mySerial.read());
+        }
+        //this function is to send the sensor data to the Ubidots, you can see the new value in the Ubidots after execute this function
+        void save_value(String value)
+        {
+          int num;
+          String le;
+          String var;
+          var="{\"value\":"+ value + "}";
+          num=var.length();
+          le=String(num);  
+          for(int i = 0;i<7;i++)
+          {
+            mySerial.println("AT+CGATT?");                                                   //it is made repeatedly because it is unstable
+            delay(2000);
+            ShowSerialData();
+          } 
+          mySerial.println("AT+CSTT=\"web.vmc.net.co\"");                                    //start task and setting the APN
+          delay(1000); 
+          ShowSerialData(); 
+          mySerial.println("AT+CIICR");                                                      //bring up wireless connection
+          delay(3000); 
+          ShowSerialData(); 
+          mySerial.println("AT+CIFSR");                                                      //get local IP adress
+          delay(2000); 
+          ShowSerialData(); 
+          mySerial.println("AT+CIPSPRT=0");
+          delay(3000); 
+          ShowSerialData(); 
+          mySerial.println("AT+CIPSTART=\"tcp\",\"things.ubidots.com\",\"80\"");             //start up the connection
+          delay(3000); 
+          ShowSerialData(); 
+          mySerial.println("AT+CIPSEND");                                                    //begin send data to remote server
+          delay(3000);
+          ShowSerialData();
+          mySerial.print("POST /api/v1.6/variables/"+idvariable);
+          delay(100);
+          ShowSerialData();
+          mySerial.println("/values HTTP/1.1");
+          delay(100);
+          ShowSerialData();
+          mySerial.println("Content-Type: application/json");
+          delay(100);
+          ShowSerialData();
+          mySerial.println("Content-Length: "+le);
+          delay(100);
+          ShowSerialData();
+          mySerial.print("X-Auth-Token: ");
+          delay(100);
+          ShowSerialData();
+          mySerial.println(token);
+          delay(100);
+          ShowSerialData();
+          mySerial.println("Host: things.ubidots.com");
+          delay(100);
+          ShowSerialData();
+          mySerial.println();
+          delay(100);
+          ShowSerialData();
+          mySerial.println(var);
+          delay(100);
+          ShowSerialData();
+          mySerial.println();
+          delay(100);
+          ShowSerialData();
+          mySerial.println((char)26);
+          delay(7000);
+          mySerial.println(); 
+          ShowSerialData(); 
+          mySerial.println("AT+CIPCLOSE");                                                //close the communication
+          delay(1000);
+          ShowSerialData();
+        }
 
-  This sketch connects to Ubidots (http://www.ubidots.com) using an Arduino Wifi shield.
-
-  This example is written for a network using WPA encryption. You only need your SSID and PASS.
-
-  This example uses Ubidots official library for Arduino WiFi Shield, for the Ubidots API v1.6.
-
-  With this example you can read an analog sensor with the arduino, and post it
-  to the Ubidots platform with the function save_value 
-
-  Components:
-  * Arduino Wifi shield
-  * Serial Monitor in your Arduino IDE
-
-  Created 9 Jun 2014
-  Modified 9 Jun 2014
-  by Mateo Vélez
-
-  This code is in the public domain.
-
-  */
-  
-  #include <WiFi.h>
-  #include <Ubidots.h>
-  char ssid[] = "Atom House Medellin";                                                 //your network SSID (name) 
-  char pass[] = "atommed2014";                                                         //your network password (use for WPA, or use as key for WEP)
-  String api = "5ca9b10038e49e0492c6794f9043f0918ddcbd26";                             //your API Key number
-  String idvari = "53baaf3c76254244e1c8e408";                                          //the number of the Ubidots variable
-  int sensorValue = 0;                                                                 //variable to store the value coming from the sensor
-  int sensorPin = A0;                                                                  //select your analog pin
-  Ubidots ubiclient(api);                                                              //call the api with the function ubiclient
-  
-   
-  void setup()
-  {
-    boolean response;                                                                 
-    int status = WL_IDLE_STATUS;                                                      //we need to define first a WL_IDLE_STATUS for the network
-    Serial.begin(9600);                                                               //9600 baud for serial transmision
-    response = ubiclient.WifiCon(ssid, pass, status, api);                               //this function is to connect to your wifi network
-    Serial.println(response);                                                         //print response to the Serial Monitor
-  }
-  
-  void loop()
-  {
-    sensorValue = analogRead(sensorPin); 
-    if (ubiclient.save_value(idvari, String(sensorValue)))                         //this function is to post to ubidots and return True or False depending on the connection status
-    {
-      Serial.println("The sensor value " + String(sensorValue) + " was sent to Ubidots");                //print the sensor value     
-    }     
-  }
+        void ShowSerialData()
+        {
+          while(mySerial.available()!=0)  
+          Serial.write(mySerial.read());   
+        }
 
 
-API Reference
--------------
-
-Ubidots ubiclient():
-````````````````````
-.. code-block:: cpp
-
-    Ubidots ubiclient(api);
-
-=======  ========  =================================
-Type     Argument  Description
-=======  ========  =================================
-String   api       Your API key for the Ubidots API
-=======  ========  =================================
-
-Initialize a Ubidots client. This is most likely to be the first Ubidots library function to call.
+Function reference:
 
 save_value()
 ````````````````````
 .. code-block:: cpp
 
-    boolean = ubiclient.save_value(idvari, String(incomingByte), ctext)
-=======  ============  ===================================
+    boolean = ubiclient.save_value(value)
+=======  ============  =====================================
 Type     Argument      Description
-=======  ============  ===================================
-String   idvari        ID of the variable to save
-String   incomingByte  The value of the sensor
-String   ctext         Content text of the value (optional)
-=======  ============  ====================================
+=======  ============  =====================================
+String   value         The value you wish to send to Ubidots
+=======  ============  =====================================
 
-Save a value to Ubidots. Returns true upon success. Returns false upon error.
-
-Please pay close attention to the format of ctext:
-
-.. code-block:: cpp
-
-   String ctext = "{\"attribute\":\"attribute_value\",\"attribute\":\"attribute_value_2\"}";
-
-Example:
-
-.. code-block:: cpp
-
-  String ctext = "{\"color\":\"blue\",\"status\":\"active\"}";
-   
-Sending the context is only an option; it's not mandatory.
-
-get_value()
-```````````
-.. code-block:: cpp
-
-    readvalue = ubiclient.get_value(idvari);
-
-==================  ===========  =============================================
-Type                Argument     Description
-==================  ===========  =============================================
-String              idvari       ID of the variable that you want make request 
-==================  ===========  =============================================
-
-Get value from Ubidots. Returns a String containing the last value of the variable.
-
-WifiCon()
-`````````
-.. code-block:: c
-
-    response = ubiclient.WifiCon(ssid, pass, status, api);
-
-==============  ===========  =================================================
-Type            Argument     Description
-==============  ===========  =================================================
-String          ssid         The SSID of your WiFi network
-String          pass         The pass of your WiFi network
-String          status       is the value of the initialization status of WiFi
-String          api          Your API Key number
-==============  ===========  =================================================
-
-This Function is to connect to your WiFi network, after connection it creates a token using the API key. 
-Returns a boolean (true or false) depending on whether the token is obtained or not. 
+Saves a value to Ubidots. Returns true upon success. Returns false upon error.
+ 
