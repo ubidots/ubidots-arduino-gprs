@@ -1,7 +1,7 @@
 Ubidots-Arduino-GPRS
 =====================
 
-Ubidots-Arduino-GPRS provides an example of sending data to Ubidots from the GPRS shield, which used the SIM900.
+Ubidots-Arduino-GPRS provides an example of sending data to Ubidots from the Arduino GPRS shield, which uses the SIM900.
 
 What you'll need:
 --------------
