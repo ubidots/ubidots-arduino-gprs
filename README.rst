@@ -1,12 +1,12 @@
 Ubidots-Arduino-GPRS
 =====================
 
-Ubidots-Arduino-GPRS provides an example of sending data to Ubidots from the Arduino GPRS shield, which uses the SIM900.
+Ubidots-Arduino-GPRS provides an example to send data to Ubidots from the Arduino GPRS shield, which uses the SIM900 modem.
 
 What you'll need:
 --------------
-* Arduino uno
-* GPRS shield SIM900
+* An Arduino Uno
+* A GPRS shield, based on the SIM900 modem
 
 A Quick example
 ----------------
@@ -18,13 +18,7 @@ Here's a quick example of how to post an analogue value to Ubidots.
         /*
          Basic sketch for GPRS shield sim900
          
-         This is a basic example to post a value on Ubidots with a simple
-         function "save_value".
-         
-         You need:
-         * Arduino 1
-         * GPRS shield
-         
+         This is a basic example on how to post a value to Ubidots, with just the function "save_value".
          
          Pins' connection
          Arduino       WiFly
@@ -48,7 +42,7 @@ Here's a quick example of how to post an analogue value to Ubidots.
         //-------------------------------------------------------------
         //---------------------Ubidots Configuration-------------------
         //-------------------------------------------------------------
-        String token = "tShIxUgpfmyWpsz0ZKtFdLDxiPmubDqBuGcI8NzlAuN5GK8ynfd0XDpRZH0R";      //your token to post value
+        String token = "tShIxUgpfmyWpsz0ZKtFdLDxiPmubDqBuGcI8NzlAuN5GK8ynfd0XDpRZH0R";      //your token to post a value
         String idvariable = "53baaf3c76254244e1c8e408";                                     //ID of your variable
         void setup()
         {
@@ -60,7 +54,7 @@ Here's a quick example of how to post an analogue value to Ubidots.
          
         void loop()
         {
-            int value = analogRead(A0);                                                     //read pin A0 of arduino
+            int value = analogRead(A0);                                                     //read pin A0 of the Arduino
             save_value(String(value));                                                      //call the save_value function
             if (mySerial.available())
             Serial.write(mySerial.read());
@@ -76,11 +70,11 @@ Here's a quick example of how to post an analogue value to Ubidots.
           le=String(num);  
           for(int i = 0;i<7;i++)
           {
-            mySerial.println("AT+CGATT?");                                                   //it is made repeatedly because it is unstable
+            mySerial.println("AT+CGATT?");                                                   //this is better made repeatedly because it is unstable
             delay(2000);
             ShowSerialData();
           } 
-          mySerial.println("AT+CSTT=\"web.vmc.net.co\"");                                    //start task and setting the APN
+          mySerial.println("AT+CSTT=\"web.vmc.net.co\"");                                    //start task and set the APN
           delay(1000); 
           ShowSerialData(); 
           mySerial.println("AT+CIICR");                                                      //bring up wireless connection
@@ -92,10 +86,10 @@ Here's a quick example of how to post an analogue value to Ubidots.
           mySerial.println("AT+CIPSPRT=0");
           delay(3000); 
           ShowSerialData(); 
-          mySerial.println("AT+CIPSTART=\"tcp\",\"things.ubidots.com\",\"80\"");             //start up the connection
+          mySerial.println("AT+CIPSTART=\"tcp\",\"things.ubidots.com\",\"80\"");             //start up connection
           delay(3000); 
           ShowSerialData(); 
-          mySerial.println("AT+CIPSEND");                                                    //begin send data to remote server
+          mySerial.println("AT+CIPSEND");                                                    //begin sendiing data to the remote server
           delay(3000);
           ShowSerialData();
           mySerial.print("POST /api/v1.6/variables/"+idvariable);
@@ -132,7 +126,7 @@ Here's a quick example of how to post an analogue value to Ubidots.
           delay(7000);
           mySerial.println(); 
           ShowSerialData(); 
-          mySerial.println("AT+CIPCLOSE");                                                //close the communication
+          mySerial.println("AT+CIPCLOSE");                                                //close communication
           delay(1000);
           ShowSerialData();
         }
@@ -157,5 +151,5 @@ Type     Argument      Description
 String   value         The value you wish to send to Ubidots
 =======  ============  =====================================
 
-Saves a value to Ubidots. Returns true upon success. Returns false upon error.
+Saves a value to Ubidots. Returns "true" upon success and "false" upon error.
  
