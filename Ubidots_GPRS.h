@@ -8,9 +8,6 @@
 #define USER_AGENT  "Ubidots/v1 GPRS/1.0"
 #define BAUDRATE 19200
 
-
-
-
 class Ubidots{
 	private:
 		SoftwareSerial _client = SoftwareSerial(7, 8);		
@@ -18,17 +15,13 @@ class Ubidots{
 	    char* _token;
 	    bool http_term();
 	    char* readData(uint16_t timeout);
-    	void flushInput();
-    	
+    	void flushInput();    	
 
 	public:
 		Ubidots(char* token);
 		void powerUpOrDown();
 		bool setApn(char* apn, char* user, char* pwd);
 		bool save_value(double value, char* id);
-		float get_value(char* id);
-		int freeRam();
-
-		
+		float get_value(char* id);		
 };
 #endif
