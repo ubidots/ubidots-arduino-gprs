@@ -7,7 +7,7 @@ This is a library for the Arduino GPRS sim 900
 These modules use TTL Serial to communicate, 2 pins are required to interface
 Be careful with jumpers, these will be like the photo:
     
-    ![!ups](http://www.seeedstudio.com/wiki/images/thumb/5/50/GPRS_communicate_with_arduino_with_software_serial.jpg/400px-GPRS_communicate_with_arduino_with_software_serial.jpg)
+![!ups](http://www.seeedstudio.com/wiki/images/thumb/5/50/GPRS_communicate_with_arduino_with_software_serial.jpg/400px-GPRS_communicate_with_arduino_with_software_serial.jpg)
 
 ## Components
 
@@ -32,4 +32,4 @@ You may need to create the libraries subfolder if its your first library. Restar
 4. Now go to File -> Examples -> Ubidots GPRS library and select get_value or save_value examples
 5. Change your token, your id and run it!  
 
-**Note: If you dont know how to do it press [here](https://www.arduino.cc/en/Guide/Libraries) and you can see the steps in Arduino page.**
+**Note: If you don't know how to add a new library to Arduino IDE press [here](https://www.arduino.cc/en/Guide/Libraries) and you can see the steps in Arduino page.**
