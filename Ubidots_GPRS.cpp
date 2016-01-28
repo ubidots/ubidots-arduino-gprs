@@ -7,11 +7,14 @@
 Ubidots::Ubidots(char* token){
 	_token = token;
 	_client.begin(BAUDRATE);
+	n = 10;
+	summ = 0;
+	val = (Value *)malloc(n*sizeof(Value));
 }
 /** 
  * This function is to power up or down GPRS Shield
  */
-void Ubidots::powerUpOrDown(){
+void Ubidots::power_up_or_down(){
   pinMode(9, OUTPUT); 
   digitalWrite(9,LOW);
   delay(1000);
@@ -19,14 +22,14 @@ void Ubidots::powerUpOrDown(){
   delay(2000);
   digitalWrite(9,LOW);
   delay(3000);
-  readData(4000);
+  read_data(4000);
 }
 /** 
  * This function is to read the data from GPRS pins. This function is from Adafruit_FONA library
  * @arg timeout, time to delay until the data is transmited
  * @return replybuffer the data of the GPRS
  */
-char* Ubidots::readData(uint16_t timeout){
+char* Ubidots::read_data(uint16_t timeout){
   uint16_t replyidx = 0;
   char replybuffer[500];
   while (timeout--) {
@@ -57,6 +60,9 @@ char* Ubidots::readData(uint16_t timeout){
   while(_client.available()){
   	_client.read();
   }
+  if(strstr(replybuffer,"NORMAL POWER DOWN")!=NULL){
+  	power_up_or_down();
+  }
   return replybuffer;
 }
 /** 
@@ -66,7 +72,7 @@ char* Ubidots::readData(uint16_t timeout){
  * @arg pwd the PASSWORD of the APN
  * @return true upon success
  */
-bool Ubidots::setApn(char* apn, char* user, char* pwd){
+bool Ubidots::set_apn(char* apn, char* user, char* pwd){
 	_client.println(F("AT+CSQ"));
 	if(strstr(readData(2000),"OK")==NULL){
 #ifdef DEBUG_UBIDOTS
@@ -306,7 +312,7 @@ bool Ubidots::http_term(){
 /** 
  * This function is to flush the input in the serial terminal. This function is from Adafruit_FONA library
  */
-void Ubidots::flushInput() {
+void Ubidots::flush_input() {
     // Read all available serial input to flush pending data.
     uint16_t timeoutloop = 0;
     while (timeoutloop++ < 40) {
@@ -316,4 +322,94 @@ void Ubidots::flushInput() {
         }
         delay(1);
     }
+}
+/**
+ * Add a value of variable to save
+ * @arg variable_id variable id to save in a struct
+ * @arg value variable value to save in a struct
+ * @arg context1 context name : context value to save in a struct
+ * @arg context2 context name : context value to save in a struct
+ */
+void Ubidots::add(char *variable_id, double value, char *context1, char *context2){
+  (val+summ)->id = variable_id;
+  (val+summ)->context_1 = context1;
+  (val+summ)->context_2 = context2;
+  (val+summ)->value_id = value;
+  summ++;
+}
+
+
+/**
+ * Send all data of all variables that you saved
+ * @reutrn true upon success, false upon error.
+ */
+bool Ubidots::send_all(){
+  	int i;
+  	int len = 0;
+	char vals[10];
+	http_term();
+	// Next for is to calculate the lenght of the data that you will send
+	for(i=0;i<summ;){
+		len = len + strlen((val+i)->id) + 1 + 10 + 1 + strlen((val+i)->context_1)+ 1 + strlen((val+i)->context_2)+1;
+		i++;
+  	}
+  	http_init();
+  	_client.print(F("AT+HTTPPARA=\"URL\",\"translate.ubidots.com:9080/arduino/gprs/?token="));
+    _client.print(_token);
+	_client.println("\"");
+	if(strstr(read_data(3000),"OK")==NULL){
+		Serial.println(F("error AT+HTTPARA"));		
+		http_term();
+		summ = 0;
+		return false;
+	}
+	_client.print(F("AT+HTTPDATA="));
+	_client.print(len);
+	_client.print(F(","));
+  	_client.println(120000);
+	if(strstr(read_data(2000),"DOWNLOAD")==NULL){
+		Serial.println(F("error"));
+		summ = 0;
+		http_term();
+		return false;
+	}
+	// Next for is to send all data from the struct
+	for(i=0;i<summ;){
+		dtostrf((val+i)->value_id,10, 5, vals);
+		
+		_client.print((val+i)->id);
+		_client.print(",");
+		_client.print(vals);
+		_client.print(",");
+		_client.print((val+i)->context_1);
+		_client.print(",");
+		_client.print((val+i)->context_2);
+		_client.print("&");	
+		i++;
+  	}
+  	_client.println();
+	if(strstr(read_data(2000),"OK")==NULL){
+		Serial.println(F("error"));
+		http_term();
+		summ = 0;
+		return false;
+	}
+	_client.println(F("AT+HTTPACTION=1"));  // HTTPACTION=1 is a POST method
+	if(strstr(read_data(4000),"+HTTPACTION:1,201")==NULL){
+		http_term();
+		summ = 0;
+		return false;		
+	}
+	else{
+		_client.println(F("AT+HTTPREAD"));
+		if(strstr(read_data(4000),"+HTTPREAD:")==NULL){
+			Serial.println(F("error"));
+			http_term();
+			summ = 0;
+			return false;
+		}
+	}
+	http_term();
+	summ = 0;
+	return true;
 }

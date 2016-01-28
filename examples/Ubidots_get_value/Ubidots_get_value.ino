@@ -11,14 +11,13 @@
 #define PASS "Your_password_here"  // if your apn doesnt have password just put ""
 #define TOKEN "Your_token_here"  // Remplace it with your token
 #define ID "Your_id_here" // Remplace it with your variable ID
-Ubidots client(TOKEN);
 
 Ubidots client(TOKEN);  
   
 void setup() {
   Serial.begin(19200);             // the Serial port of Arduino baud rate.  
-  client.powerUpOrDown();
-  client.setApn(APN,USER,PASS);
+  client.power_up_or_down();
+  client.set_apn(APN,USER,PASS);
 }
 
 void loop() {

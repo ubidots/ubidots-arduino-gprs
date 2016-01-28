@@ -15,8 +15,8 @@ Ubidots client(TOKEN);
 
 void setup() {
   Serial.begin(19200);             // the Serial port of Arduino baud rate.  
-  client.powerUpOrDown();
-  client.setApn(APN,USER,PASS);
+  client.power_up_or_down();
+  client.set_apn(APN,USER,PASS);
 }
 
 void loop() {
