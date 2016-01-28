@@ -16,26 +16,24 @@ typedef struct Value {
 } Value;
 
 class Ubidots{
-	private:
-		SoftwareSerial _client = SoftwareSerial(7, 8);		
-		bool http_init();
-	    char* _token;
-	    bool http_term();
-	    char* read_data(uint16_t timeout);
-    	void flush_input();
-    	uint8_t n;
-    	uint8_t summ;
-    	Value * val;
-    	
+    private:
+        SoftwareSerial _client = SoftwareSerial(7, 8);      
+        bool httpInit();
+        char* _token;
+        bool httpTerm();
+        char* readData(uint16_t timeout);
+        void flushInput();
+        uint8_t maxValues;
+        uint8_t currentValue;
+        Value * val;        
 
-	public:
-		Ubidots(char* token);
-		void power_up_or_down();
-		bool set_apn(char* apn, char* user, char* pwd);
-		bool save_value(double value, char* id);
-		float get_value(char* id);
-		int free_ram();
-		void add(char *variable_id, double value, char *context1, char *context2);
-		bool send_all();		
+    public:
+        Ubidots(char* token);
+        void powerUpOrDown();
+        bool setApn(char* apn, char* user, char* pwd);
+        bool saveValue(double value, char* id);
+        float getValue(char* id);
+        void add(char *variable_id, double value, char *context1, char *context2);
+        bool sendAll();        
 };
 #endif

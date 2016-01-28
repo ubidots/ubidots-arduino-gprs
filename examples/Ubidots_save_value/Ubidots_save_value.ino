@@ -15,12 +15,12 @@ Ubidots client(TOKEN);
 
 void setup() {
   Serial.begin(19200);             // the Serial port of Arduino baud rate.  
-  client.power_up_or_down();
-  client.set_apn(APN,USER,PASS);
+  client.powerUpOrDown();
+  client.setApn(APN,USER,PASS);
 }
 
 void loop() {
   float value = analogRead(A0);  // Reading analog pin A0
-  client.save_value(value,ID);  
+  client.saveValue(value,ID);  
   delay(600);  // 600 milliseconds 
 }
