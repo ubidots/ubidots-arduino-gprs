@@ -1,4 +1,4 @@
-#include <Ubidots_GPRS.h>
+#include <Ubidots_Arduino_GPRS.h>
 #include <SoftwareSerial.h> 
 //Serial Relay - Arduino will patch a 
 //serial link between the computer and the GPRS Shield
@@ -21,6 +21,6 @@ void setup() {
 
 void loop() {
   float value = analogRead(A0);  // Reading analog pin A0
-  client.save_value(value,ID);  
+  client.saveValue(value,ID);  
   delay(600);  // 600 milliseconds 
 }

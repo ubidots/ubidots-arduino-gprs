@@ -1,4 +1,4 @@
-#include <Ubidots_GPRS.h>
+#include <Ubidots_Arduino_GPRS.h>
 #include <SoftwareSerial.h> 
 //Serial Relay - Arduino will patch a 
 //serial link between the computer and the GPRS Shield
@@ -11,7 +11,6 @@
 #define PASS "Your_password_here"  // if your apn doesnt have password just put ""
 #define TOKEN "Your_token_here"  // Remplace it with your token
 #define ID "Your_id_here" // Remplace it with your variable ID
-Ubidots client(TOKEN);
 
 Ubidots client(TOKEN);  
   
@@ -22,8 +21,8 @@ void setup() {
 }
 
 void loop() {
-  float value = client.get_value(ID);
-  Serial.println(n);
+  float value = client.getValue(ID);
+  Serial.println(value);
   delay(600);  // 600 milliseconds 
   Serial.println(value);
 }
