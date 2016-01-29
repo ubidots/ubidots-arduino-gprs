@@ -17,8 +17,6 @@ Be careful with jumpers, these will be like the photo:
 
 ## Pin Connection
 
-Written by Mateo Velez - Metavix for Ubidots Inc.   
-
 To download. click the DOWNLOADS button in the top right corner, rename the uncompressed folder Ubidots_GPRS Check that the Ubidots_GPRS folder contains Ubidots_GPRS.cpp and Ubidots_GPRS.h
 
 Place the Ubidots_GPRS library folder your *arduinosketchfolder*/libraries/ folder. 
