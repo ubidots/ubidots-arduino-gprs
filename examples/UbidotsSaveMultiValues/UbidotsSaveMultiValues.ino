@@ -36,9 +36,9 @@ void loop() {
   // To send a value with a context is like: (ID,value,"NAME_CONTEXT:VALUE_CONTEXT","")
   // If you don't want to send any context only put "" like this (ID,value,"","")
   // Example with context:
-  // client.add(ID1, value_1, "Lat:9,786589", "Long:1,8688797");
+  // client.add(ID1, value_1, "Lat:9.786589", "Long:1.8688797");
 
-  client.add(ID1,value_1, "", ""); 
+  client.add(ID1, value_1, "Lat:9.786589", "Long:1.8688797");
   client.add(ID2,value_2, "", "");
   client.add(ID3,value_3, "", "");
   client.add(ID4,value_4, "", "");
