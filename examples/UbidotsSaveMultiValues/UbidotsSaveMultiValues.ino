@@ -11,12 +11,10 @@
 #define TOKEN "Your_token_here"  // Replace it with your Ubidots token
 #define ID "Your_id_here" // Replace it with your Ubidots' variable ID
 // You can send 1 to 10 variable at the same time
-#define ID1 "Your_id_here" // Remplace it with your variable ID
-#define ID2 "Your_id_here" // Remplace it with your variable ID
-#define ID3 "Your_id_here" // Remplace it with your variable ID
-#define ID4 "Your_id_here" // Remplace it with your variable ID
-#define ID5 "Your_id_here" // Remplace it with your variable ID
-#define ID6 "Your_id_here" // Remplace it with your variable ID
+#define ID1 "Your_id_here" // Replace it with your variable ID
+#define ID2 "Your_id_here" // Replace it with your variable ID
+#define ID3 "Your_id_here" // Replace it with your variable ID
+
 
 Ubidots client(TOKEN);  
   
@@ -30,9 +28,7 @@ void loop() {
   float value_1 = analogRead(A0);
   float value_2 = analogRead(A1);
   float value_3 = analogRead(A2);
-  float value_4 = analogRead(A3);
-  float value_5 = analogRead(A4);
-  float value_6 = analogRead(A5);
+
   // To send a value with a context is like: (ID,value,"NAME_CONTEXT:VALUE_CONTEXT","")
   // If you don't want to send any context only put "" like this (ID,value,"","")
   // Example with context:
@@ -41,8 +37,6 @@ void loop() {
   client.add(ID1, value_1, "Lat:9.786589", "Long:1.8688797");
   client.add(ID2,value_2, "", "");
   client.add(ID3,value_3, "", "");
-  client.add(ID4,value_4, "", "");
-  client.add(ID5,value_5, "", "");
-  client.add(ID6,value_6, "", "");
+
   client.sendAll();
 }
