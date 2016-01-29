@@ -1,4 +1,4 @@
-#include <Ubidots_GPRS.h>
+#include <Ubidots_Arduino_GPRS.h>
 #include <SoftwareSerial.h> 
 //Serial Relay - Arduino will patch a 
 //serial link between the computer and the GPRS Shield
