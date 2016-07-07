@@ -278,14 +278,14 @@ bool Ubidots::httpInit(){
     _client.println(F("AT+HTTPINIT"));
     if(strstr(readData(1000),"OK")==NULL){
 #ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+HTTPINIT. Reset the Arduino, will you?"));
+        Serial.println(F("Error with AT+HTTPINIT. Reset the Arduino please."));
 #endif
         return false;
     }
     _client.println(F("AT+HTTPPARA=\"CID\",1"));
     if(strstr(readData(1000),"OK")==NULL){
 #ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+HTTPARA CID. Reset the Arduino, will you?"));
+        Serial.println(F("Error with AT+HTTPARA CID. Reset the Arduino please."));
 #endif
         return false;
     }
@@ -294,7 +294,7 @@ bool Ubidots::httpInit(){
     _client.println(F("\""));
     if(strstr(readData(1000),"OK")==NULL){
 #ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+HTTPARA USER_AGENT. Reset the Arduino, will you?"));
+        Serial.println(F("Error with AT+HTTPARA USER_AGENT. Reset the Arduino please."));
 #endif
         return false;
     }
