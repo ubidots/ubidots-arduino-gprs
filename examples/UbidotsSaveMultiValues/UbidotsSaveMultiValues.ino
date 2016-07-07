@@ -34,7 +34,7 @@ void loop() {
   float value_3 = analogRead(A2);
 
   // To send geolocation of the variable put it like this:
-  client.add(VARIABLE_NAME_ONE, value_1, "lat:9.92323$lng:1.12323");
+  client.add(VARIABLE_NAME_ONE, value_1, "lat=9.92323$lng=1.12323");
   // lng is longitude, and lat is latitude, split it with "$"
   client.add(VARIABLE_NAME_TWO, value_2);
   client.add(VARIABLE_NAME_THREE, value_3);
