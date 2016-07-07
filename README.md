@@ -133,7 +133,6 @@ Upload the code, open the Serial monitor to check the results. If no response is
 #define USER ""  // If your apn doesnt have username just put ""
 #define PASS ""  // If your apn doesnt have password just put ""
 #define TOKEN "XXXxxxxXXXxx"  // Replace it with your Ubidots token
-// You can send 1 to 10 variable at the same time
 #define VARIABLE_NAME_ONE "Temperature"
 #define VARIABLE_NAME_TWO "Humidity"
 #define VARIABLE_NAME_THREE "Heat Index"
