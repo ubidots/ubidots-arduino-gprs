@@ -6,21 +6,32 @@
 //Computer is connected to Hardware UART
 //GPRS Shield is connected to the Software UART 
 
+
 #define APN "Your_apn_of_your_SIM_here" 
 #define USER "Your_username_here"  // If your apn doesnt have username just put ""
 #define PASS "Your_password_here"  // If your apn doesnt have password just put ""
 #define TOKEN "Your_token_here"  // Replace it with your Ubidots token
-#define ID "Your_id_here" // Replace it with your Ubidots' variable ID
+#define VARIABLE_NAME "Your_variable_name_here"
+
+
 Ubidots client(TOKEN);
+SoftwareSerial gprs = SoftwareSerial(7, 8);
+SoftwareSerial *GPRSSerial = &gprs;
+
 
 void setup() {
-  Serial.begin(19200);             // the Serial port of Arduino baud rate.  
-  client.powerUpOrDown();
-  client.setApn(APN,USER,PASS);
+  Serial.begin(115200);
+  GPRSSerial->begin(19200);
+  if (! client.init(*GPRSSerial)) {
+    Serial.println(F("Couldn't find FONA"));
+    while (1);
+  }
+  while (!client.setApn(APN,USER,PASS));
 }
 
 void loop() {
   float value = analogRead(A0);  // Reading analog pin A0
-  client.saveValue(value,ID);  
+  client.add(VARIABLE_NAME, VALUE);
+  client.sendAll(); 
   delay(1000);
 }

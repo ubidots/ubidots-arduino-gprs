@@ -10,18 +10,23 @@
 #define USER "Your_username_here"  // If your apn doesnt have username just put ""
 #define PASS "Your_password_here"  // If your apn doesnt have password just put ""
 #define TOKEN "Your_token_here"  // Replace it with your Ubidots token
-#define ID "Your_id_here" // Replace it with your Ubidots' variable ID
+#define DATA_SOURCE_IDENTIFIER "Your_data_source_identifier_here"
+#define VARIABLE_IDENTIFIER "Your_variable_identifier_here"
 
 Ubidots client(TOKEN);  
   
 void setup() {
-  Serial.begin(19200);             // the Serial port of Arduino baud rate.  
-  client.powerUpOrDown();
-  client.setApn(APN,USER,PASS);
+  Serial.begin(115200);
+  GPRSSerial->begin(19200);
+  if (! client.init(*GPRSSerial)) {
+    Serial.println(F("Couldn't find FONA"));
+    while (1);
+  }
+  while (!client.setApn(APN,USER,PASS));
 }
 
 void loop() {
-  float value = client.getValue(ID);
+  float value = client.getValueWithDatasource(DATA_SOURCE_IDENTIFIER, VARIABLE_IDENTIFIER));
   Serial.println(value);
   delay(1000);
   Serial.println(value);
