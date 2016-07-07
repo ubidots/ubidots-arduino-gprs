@@ -97,7 +97,7 @@ float Ubidots::getValueWithDatasource(char* dsTag, char* idName) {
     client->print(F("\",\""));
     client->print(PORT);
     client->println(F("\""));
-    if(strstr(readData(4000),"OK")==NULL){
+    if(strstr(readData(4000),"CONNECT OK")==NULL){
 #ifdef DEBUG_UBIDOTS
         Serial.println(F("Error with AT+CIPSTART"));
 #endif
@@ -249,8 +249,12 @@ bool Ubidots::sendAll() {
             all += "$";
             all += String((val + i)->ctext);
         }
-        all += ",";
         i++;
+        if (i >= currentValue) {
+            break;
+        } else {
+            all += ",";
+        }
     }
     all += "|end";
     Serial.println(all.c_str());
@@ -266,7 +270,7 @@ bool Ubidots::sendAll() {
     client->print(F("\",\""));
     client->print(PORT);
     client->println(F("\""));
-    if(strstr(readData(4000),"OK")==NULL){
+    if(strstr(readData(4000),"CONNECT OK")==NULL){
 #ifdef DEBUG_UBIDOTS
         Serial.println(F("Error with AT+CIPSTART"));
 #endif
