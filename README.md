@@ -33,7 +33,7 @@ Put your Ubidots token and variable ID's where indicated, as well as the APN set
 Upload the code, open the Serial monitor to check the results. If no response is seen, try unplugging your Arduino and then plugging it again. Make sure the baud rate of the Serial monitor is set to the same one specified in your code.
 
 ```c++
-#include <Ubidots_Arduino_GPRS.h>
+#include <UbidotsArduinoGPRS.h>
 #include <SoftwareSerial.h> 
 //Serial Relay - Arduino will patch a 
 //serial link between the computer and the GPRS Shield
@@ -83,7 +83,7 @@ Put your Ubidots token and variable ID where indicated, as well as the APN setti
 Upload the code, open the Serial monitor to check the results. If no response is seen, try unplugging your Arduino and then plugging it again. Make sure the baud rate of the Serial monitor is set to the same one specified in your code.
 
 ```c++
-#include <Ubidots_Arduino_GPRS.h>
+#include <UbidotsArduinoGPRS.h>
 #include <SoftwareSerial.h> 
 //Serial Relay - Arduino will patch a 
 //serial link between the computer and the GPRS Shield
