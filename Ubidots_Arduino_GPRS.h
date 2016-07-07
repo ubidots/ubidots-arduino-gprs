@@ -30,7 +30,7 @@
 #define SERVER "translate.ubidots.com"
 #define PORT "9010"
 #define MAX_VALUES 5
-#define USER_AGENT "SODAQGPRSbee"
+#define USER_AGENT "GPRS"
 #define VERSION "2.0"
 #define DEFAULT_BUFFER_SIZE 64
 
