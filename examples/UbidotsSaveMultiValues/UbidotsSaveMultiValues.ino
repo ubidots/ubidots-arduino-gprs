@@ -9,8 +9,6 @@
 #define USER "Your_username_here"  // If your apn doesnt have username just put ""
 #define PASS "Your_password_here"  // If your apn doesnt have password just put ""
 #define TOKEN "Your_token_here"  // Replace it with your Ubidots token
-#define ID "Your_id_here" // Replace it with your Ubidots' variable ID
-// You can send 1 to 10 variable at the same time
 #define VARIABLE_NAME_ONE "Your_variable_name_here"
 #define VARIABLE_NAME_TWO "Your_variable_name_here"
 #define VARIABLE_NAME_THREE "Your_variable_name_here"
