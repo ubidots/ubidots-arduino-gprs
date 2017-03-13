@@ -8,12 +8,12 @@ Here you will learn how to interact with the Ubidots API using an Arduino GPRS s
 * [Arduino Uno](http://arduino.cc/en/Main/ArduinoBoardUno)
 * [GPRS shield SIM900](http://www.seeedstudio.com/depot/GPRS-Shield-V20-p-1379.html)
 * [Arduino IDE 1.6.0 or higher](https://www.arduino.cc/en/Main/Software)
-* [Ubidots Arduino GPRS library](https://github.com/ubidots/ubidots-arduino-gprs/archive/1.0.0.zip)
+* [Ubidots Arduino GPRS library](https://github.com/ubidots/ubidots-arduino-gprs/archive/master.zip)
 * An active SIM card with a data plan 
 
 ## Setup
 
-1. Download the Ubidots_Arduino_GPRS.h library [here](https://github.com/ubidots/ubidots-arduino-gprs/archive/1.0.0.zip)
+1. Download the Ubidots_Arduino_GPRS.h library [here](https://github.com/ubidots/ubidots-arduino-gprs/archive/master.zip)
 2. Go to the Arduino IDE, click on **Sketch -> Include Library -> Add .ZIP Library**
 3. Select the .ZIP file of Ubidots_Arduino_GPRS.h and then "Accept" or "Choose"
 4. Close the Arduino IDE and open it again.
