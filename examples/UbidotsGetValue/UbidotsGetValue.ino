@@ -10,11 +10,13 @@
 #define USER "Your_username_here"  // If your apn doesnt have username just put ""
 #define PASS "Your_password_here"  // If your apn doesnt have password just put ""
 #define TOKEN "Your_token_here"  // Replace it with your Ubidots token
-#define DATA_SOURCE_IDENTIFIER "Your_data_source_identifier_here"
-#define VARIABLE_IDENTIFIER "Your_variable_identifier_here"
+#define DEVICE_LABEL "Your_device_label_here" // Assign the device label 
+#define VARIABLE_LABEL "Your_variable_label_here" // Assign the variable label 
 
-Ubidots client(TOKEN);  
-  
+Ubidots client(TOKEN);
+SoftwareSerial gprs = SoftwareSerial(7, 8);
+SoftwareSerial *GPRSSerial = &gprs;
+
 void setup() {
   Serial.begin(115200);
   GPRSSerial->begin(19200);
@@ -26,8 +28,7 @@ void setup() {
 }
 
 void loop() {
-  float value = client.getValueWithDatasource(DATA_SOURCE_IDENTIFIER, VARIABLE_IDENTIFIER));
+  float value = client.getValueWithDatasource(DEVICE_LABEL, VARIABLE_LABEL);
   Serial.println(value);
   delay(1000);
-  Serial.println(value);
 }
