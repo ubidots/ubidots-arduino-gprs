@@ -35,7 +35,7 @@
 
 
 #define SERVER "translate.ubidots.com"
-#define PORT "9010"
+#define PORT "9012"
 #define MAX_VALUES 5
 #define USER_AGENT "GPRS"
 #define VERSION "2.0"
