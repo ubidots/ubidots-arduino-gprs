@@ -38,7 +38,7 @@ namespace {
     const char * TIME_SERVER = "pool.ntp.org";
     const char * PORT = "9012";
     const char * USER_AGENT = "GPRS";
-    const char * VERSION = "2.1";
+    const char * VERSION = "3.0.0";
     const float ERROR_VALUE = -3.4028235E+8;
     const uint8_t MAX_VALUES = 5;
     const uint8_t DEFAULT_BUFFER_SIZE = 64;
@@ -57,7 +57,6 @@ class Ubidots {
  public:
     explicit Ubidots(char* token, char* server = SERVER);
     bool init(Stream &port);
-    bool manageData(char* allData);
     bool sendAll();
     bool sendAll(unsigned long timestamp_global);
     float getValueWithDevice(char* device_label, char* variable_label);
@@ -66,7 +65,6 @@ class Ubidots {
     void add(char *variable_label, double value, char *ctext, unsigned long timestamp);
     void flushInput();
     void setApn(char* apn = "", char* user = "", char* pwd = "");
-    void powerUpOrDown();    
     void setDeviceName(char* deviceName);
     void setDeviceLabel(char* deviceLabel);
     void setDebug(bool debug);
@@ -76,6 +74,7 @@ class Ubidots {
  private:
     bool _debug = true;
     bool isTimedOut(uint32_t ts) { return (long)(millis() - ts) >= 0; }
+    bool manageData(char* allData);
     char* _apn;
     char* _apn_user;
     char* _apn_pwd;
@@ -86,6 +85,7 @@ class Ubidots {
     char buffer[DEFAULT_BUFFER_SIZE];
     char* readData(uint16_t timeout);
     uint8_t _currentValue;
+    void powerUpOrDown();    
     Stream *client;
     Value * val;
 };
