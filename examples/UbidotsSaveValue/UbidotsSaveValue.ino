@@ -6,12 +6,11 @@
 //at 19200 bps 8-N-1
 //Computer is connected to Hardware UART
 //GPRS Shield is connected to the Software UART 
-
-#define APN "Your_apn_of_your_SIM_here" 
-#define USER "Your_username_here"  // If your apn doesnt have username just put ""
-#define PASS "Your_password_here"  // If your apn doesnt have password just put ""
-#define TOKEN "Your_token_here"  // Replace it with your Ubidots token
-#define VARIABLE_LABEL "Your_variable_label_here" // Assign the variable label 
+#define APN "Put_the_APN_here" // Assign the APN 
+#define USER "Put_the_APN_user_herer"  // If your apn doesnt have username just put ""
+#define PASS "Put_the_APN_pwd_here"  // If your apn doesnt have password just put ""
+#define TOKEN "Put_your_Ubidots_token_here"  // Replace it with your Ubidots token
+#define VARIABLE_LABEL "temperature" // Assign the variable label 
 
 Ubidots client(TOKEN);
 SoftwareSerial gprs = SoftwareSerial(7, 8);
@@ -24,12 +23,12 @@ void setup() {
     Serial.println(F("Couldn't find FONA"));
     while (1);
   }
-  while (!client.setApn(APN,USER,PASS));
+  client.setApn(APN,USER,PASS);
+  //client.setDebug(false);
 }
 
 void loop() {
   float value = analogRead(A0);  // Reading analog pin A0
-  client.add(VARIABLE_LABEL, value);
-  client.sendAll(); 
-  delay(1000);
+  client.add(VARIABLE_LABEL, value);  
+  client.sendAll();
 }
