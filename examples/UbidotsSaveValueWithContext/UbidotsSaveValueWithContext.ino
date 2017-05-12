@@ -10,9 +10,7 @@
 #define USER "Put_the_APN_user_herer"  // If your apn doesnt have username just put ""
 #define PASS "Put_the_APN_pwd_here"  // If your apn doesnt have password just put ""
 #define TOKEN "Put_your_Ubidots_token_here"  // Replace it with your Ubidots token
-#define VARIABLE_LABEL_1 "temperature" // Assign the variable label 
-#define VARIABLE_LABEL_2 "humidity" // Assign the variable label 
-#define VARIABLE_LABEL_3 "pressure" // Assign the variable label 
+#define VARIABLE_LABEL "position" // Assign the variable label 
 
 Ubidots client(TOKEN);
 SoftwareSerial gprs = SoftwareSerial(7, 8);
@@ -30,11 +28,10 @@ void setup() {
 }
 
 void loop() {
-  float temperature = analogRead(A0);  // Reading analog pin A0
-  float humidity = analogRead(A1);  // Reading analog pin A0
-  float pressure = analogRead(A2);  // Reading analog pin A0
-  client.add(VARIABLE_LABEL_1, temperature);
-  client.add(VARIABLE_LABEL_2, humidity);
-  client.add(VARIABLE_LABEL_3, pressure);
+
+  float value = 1;
+  char context[25];
+  sprintf(context, "lat=1.2343$lng=132.1233"); //Sends latitude and longitude for watching position in a map
+  client.add(VARIABLE_LABEL, value, context);  // Change for your variable name
   client.sendAll();
 }

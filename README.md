@@ -1,7 +1,12 @@
-# Arduino-GPRS v2.0
+# Arduino-GPRS v3.0.0
 
 The GPRS Shield is based on the SIM900 module from SIMCOM. It is compatible with all boards that have the same form factor (and pinout) as a standard Arduino Board. The GPRS Shield is configured and controlled via its UART using simple AT commands. Based on the SIM900 module from SIMCOM, the GPRS Shield is like a cell phone. 
+
 Here you will learn how to interact with the Ubidots API using an Arduino GPRS shield and a Ubidots library.
+
+**NOTE:** This library is not compatible with the old versions. Find the last stable version (**2.0.0**) on the link below:
+
+* [Ubidots Arduino GPRS Libray - 2.0.0.](https://github.com/ubidots/ubidots-arduino-gprs/archive/2.0.0.zip)
 
 ## Requirements
 
@@ -13,9 +18,9 @@ Here you will learn how to interact with the Ubidots API using an Arduino GPRS s
 
 ## Setup
 
-1. Download the Ubidots_Arduino_GPRS.h library [here](https://github.com/ubidots/ubidots-arduino-gprs/archive/master.zip)
+1. Download the Ubidots_Arduino_GPRS.h library [here](https://github.com/ubidots/ubidots-arduino-gprs)
 2. Go to the Arduino IDE, click on **Sketch -> Include Library -> Add .ZIP Library**
-3. Select the .ZIP file of Ubidots_Arduino_GPRS.h and then "Accept" or "Choose"
+3. Select the .ZIP file of **Ubidots Arduino GPRS** and then "**Accept**" or "**Choose**"
 4. Close the Arduino IDE and open it again.
 
 Before running the examples, make sure you have an active data plan. You will also need your mobile operator’s APN settings (APN, USER, PASSWORD). You should be able to easily find these settings in Google or in your operator’s website.
@@ -27,13 +32,13 @@ This library uses the digital PIN "JP" of the SIM900 (PIN 9 in the Arduino) to p
 * To change the Device Name:
 
 ```
-client.setDataSourceName("New_name");
+client.setDeviceName("New_name");
 ```
 
 * To change the Device label:
 
 ```
-client.setDataSourceTag("New_label"); 
+client.setDeviceLabel("New_label"); 
 ```
 
 ## Send values to Ubidots 
@@ -54,17 +59,11 @@ Upload the code, open the Serial monitor to check the results. If no response is
 #include <UbidotsArduinoGPRS.h>
 #include <SoftwareSerial.h> 
 
-//Serial Relay - Arduino will patch a 
-//serial link between the computer and the GPRS Shield
-//at 19200 bps 8-N-1
-//Computer is connected to Hardware UART
-//GPRS Shield is connected to the Software UART 
-
-#define APN "Your_apn_of_your_SIM_here" 
-#define USER "Your_username_here"  // If your apn doesnt have username just put ""
-#define PASS "Your_password_here"  // If your apn doesnt have password just put ""
-#define TOKEN "Your_token_here"  // Replace it with your Ubidots token
-#define VARIABLE_LABEL "Your_variable_label_here" // Assign the variable label 
+#define APN "Put_the_APN_here" // Assign the APN 
+#define USER "Put_the_APN_user_herer"  // If your apn doesnt have username just put ""
+#define PASS "Put_the_APN_pwd_here"  // If your apn doesnt have password just put ""
+#define TOKEN "Put_your_Ubidots_token_here"  // Replace it with your Ubidots token
+#define VARIABLE_LABEL "temperature" // Assign the variable label 
 
 Ubidots client(TOKEN);
 SoftwareSerial gprs = SoftwareSerial(7, 8);
@@ -77,14 +76,14 @@ void setup() {
     Serial.println(F("Couldn't find FONA"));
     while (1);
   }
-  while (!client.setApn(APN,USER,PASS));
+  client.setApn(APN,USER,PASS);
+  //client.setDebug(false);
 }
 
 void loop() {
   float value = analogRead(A0);  // Reading analog pin A0
-  client.add(VARIABLE_LABEL, value);
-  client.sendAll(); 
-  delay(1000);
+  client.add(VARIABLE_LABEL, value);  
+  client.sendAll();
 }
 ```
 
@@ -97,24 +96,17 @@ Add your Ubidots TOKEN where indicated, as well as the APN settings.
 ```c++
 #include <UbidotsArduinoGPRS.h>
 #include <SoftwareSerial.h> 
-//Serial Relay - Arduino will patch a 
-//serial link between the computer and the GPRS Shield
-//at 19200 bps 8-N-1
-//Computer is connected to Hardware UART
-//GPRS Shield is connected to the Software UART 
 
-#define APN "Your_apn_of_your_SIM_here" 
-#define USER "Your_username_here"  // If your apn doesnt have username just put ""
-#define PASS "Your_password_here"  // If your apn doesnt have password just put ""
-#define TOKEN "Your_token_here"  // Replace it with your Ubidots token
-#define VARIABLE_LABEL "Your_variable_label_here" // Assign the variable label 
+#define APN "Put_the_APN_here" // Assign the APN 
+#define USER "Put_the_APN_user_herer"  // If your apn doesnt have username just put ""
+#define PASS "Put_the_APN_pwd_here"  // If your apn doesnt have password just put ""
+#define TOKEN "Put_your_Ubidots_token_here"  // Replace it with your Ubidots token
+#define VARIABLE_LABEL "position" // Assign the variable label 
 
 Ubidots client(TOKEN);
 SoftwareSerial gprs = SoftwareSerial(7, 8);
 SoftwareSerial *GPRSSerial = &gprs;
 
-Ubidots client(TOKEN);  
-  
 void setup() {
   Serial.begin(115200);
   GPRSSerial->begin(19200);
@@ -122,17 +114,17 @@ void setup() {
     Serial.println(F("Couldn't find FONA"));
     while (1);
   }
-  while (!client.setApn(APN,USER,PASS));
+  client.setApn(APN,USER,PASS);
+  //client.setDebug(false);
 }
 
 void loop() {
-  float value = analogRead(A0);
 
-  // To send geolocation of the variable put it like this:
-  client.add(VARIABLE_LABEL, value, "lat=9.92323$lng=1.12323");
-  // lng is longitude, and lat is latitude, split it with "$"
+  float value = 1;
+  char context[25];
+  sprintf(context, "lat=1.2343$lng=132.1233"); //Sends latitude and longitude for watching position in a map
+  client.add(VARIABLE_LABEL, value, context);  // Change for your variable name
   client.sendAll();
-  delay(1000);
 }
 ```
 
@@ -141,7 +133,7 @@ void loop() {
 
 To get the last value of a variable from Ubidots you can use the following function:
 
-* client.getValueWithDatasource(DEVICE_LABEL, VARIABLE_LABEL);
+* client.getValueWithDeviceDEVICE_LABEL, VARIABLE_LABEL);
 
 On the example folder you'll find all the examples codes. Go to **Sketch -> Examples -> Ubidots GPRS library** and select the "**UbidotsGetValue**" example. 
 
@@ -154,18 +146,13 @@ Add your Ubidots TOKEN where indicated, as well as the APN settings.
 ```c++
 #include <UbidotsArduinoGPRS.h>
 #include <SoftwareSerial.h> 
-//Serial Relay - Arduino will patch a 
-//serial link between the computer and the GPRS Shield
-//at 19200 bps 8-N-1
-//Computer is connected to Hardware UART
-//GPRS Shield is connected to the Software UART 
 
-#define APN "Your_apn_of_your_SIM_here" 
-#define USER "Your_username_here"  // If your apn doesnt have username just put ""
-#define PASS "Your_password_here"  // If your apn doesnt have password just put ""
-#define TOKEN "Your_token_here"  // Replace it with your Ubidots token
-#define DEVICE_LABEL "Your_device_label_here" // Assign the device label 
-#define VARIABLE_LABEL "Your_variable_label_here" // Assign the variable label 
+#define APN "Put_the_APN_here" // Assign the APN 
+#define USER "Put_the_APN_user_herer"  // If your apn doesnt have username just put ""
+#define PASS "Put_the_APN_pwd_here"  // If your apn doesnt have password just put ""
+#define TOKEN "Put_your_Ubidots_token_here"  // Replace it with your Ubidots token
+#define DEVICE_LABEL "Put_your_device_API_label" // Assign your device api label
+#define VARIABLE_LABEL "Put_your_variable_API_label" // Assign your device api label
 
 Ubidots client(TOKEN);
 SoftwareSerial gprs = SoftwareSerial(7, 8);
@@ -178,12 +165,16 @@ void setup() {
     Serial.println(F("Couldn't find FONA"));
     while (1);
   }
-  while (!client.setApn(APN,USER,PASS));
+  client.setApn(APN,USER,PASS);
+  //client.setDebug(false);
 }
 
 void loop() {
-  float value = client.getValueWithDatasource(DEVICE_LABEL, VARIABLE_LABEL);
-  Serial.println(value);
-  delay(1000);
+  float value = client.getValueWithDevice(DEVICE_LABEL, VARIABLE_LABEL);
+  
+  if(value!=ERROR_VALUE){
+    Serial.print("Getting variable value: ");
+    Serial.println(value);
+  }
 }
 ```

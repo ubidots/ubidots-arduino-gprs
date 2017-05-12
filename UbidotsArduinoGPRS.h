@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2013, Ubidots.
+    Copyright (c) 2017, Ubidots.
 
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of this software and associated documentation files (the
@@ -20,58 +20,74 @@
     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-    Made by Mateo Velez - Metavix
+    Original Maker: Mateo Velez - Metavix
+    Modified and maintained by: Jose Garcia https://github.com/jotathebest
+                                Maria Carlina Hernandez https://github.com/mariacarlinahernandez 
 */
-
-
 
 #ifndef __UbidotsArduinoGPRS_H_
 #define __UbidotsArduinoGPRS_H_
-#define DEBUG_UBIDOTS
 
 #include <stdint.h>
 #include <Arduino.h>
 #include <Stream.h>
+#include <stdio.h>  
 
+namespace {
+    const char * SERVER = "translate.ubidots.com";
+    const char * TIME_SERVER = "pool.ntp.org";
+    const char * PORT = "9012";
+    const char * USER_AGENT = "GPRS";
+    const char * VERSION = "3.0.0";
+    const float ERROR_VALUE = -3.4028235E+8;
+    const uint8_t MAX_VALUES = 5;
+    const uint8_t DEFAULT_BUFFER_SIZE = 64;
 
-#define SERVER "translate.ubidots.com"
-#define PORT "9012"
-#define MAX_VALUES 5
-#define USER_AGENT "GPRS"
-#define VERSION "2.0"
-#define DEFAULT_BUFFER_SIZE 64
+}
 
 typedef struct Value {
     char  *varName;
-    char  *ctext;
+    char  *contextOne;
     float varValue;
+    unsigned long timestamp_val;
 } Value;
 
 class Ubidots {
+
  public:
     explicit Ubidots(char* token, char* server = SERVER);
     bool init(Stream &port);
-    bool setApn(char* apn = "", char* user = "", char* pwd = "");
-    float getValueWithDatasource(char* dsTag, char* idName);
-    void setDataSourceName(char* dsName);
-    void setDataSourceTag(char* dsTag);
     bool sendAll();
-    void add(char *variableName, float value, char* context = NULL);
-    void powerUpOrDown();
+    bool sendAll(unsigned long timestamp_global);
+    float getValueWithDevice(char* device_label, char* variable_label);
+    void add(char *variable_label, double value);
+    void add(char *variable_label, double value, char *ctext);
+    void add(char *variable_label, double value, char *ctext, unsigned long timestamp);
     void flushInput();
+    void setApn(char* apn = "", char* user = "", char* pwd = "");
+    void setDeviceName(char* deviceName);
+    void setDeviceLabel(char* deviceLabel);
+    void setDebug(bool debug);
+    unsigned long ntpUnixTime();
+
 
  private:
-    char* readData(uint16_t timeout);
+    bool _debug = true;
     bool isTimedOut(uint32_t ts) { return (long)(millis() - ts) >= 0; }
-    char buffer[DEFAULT_BUFFER_SIZE];
-    char* _dsTag;
+    bool manageData(char* allData);
+    char* _apn;
+    char* _apn_user;
+    char* _apn_pwd;
+    char* _device_label;
+    char* _device_name;
     char* _server;
-    char* _dsName;
     char* _token;
-    uint8_t currentValue;
+    char buffer[DEFAULT_BUFFER_SIZE];
+    char* readData(uint16_t timeout);
+    uint8_t _currentValue;
+    void powerUpOrDown();    
     Stream *client;
     Value * val;
 };
-
 
 #endif
