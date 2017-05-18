@@ -45,7 +45,7 @@ CONSTRUCTOR
 Ubidots::Ubidots(char* token, char* server) {
     _server = server;
     _token = token;
-    _device_name = "GPRS";
+    _device_label = "GPRS";
     _currentValue = 0;
     val = (Value *)malloc(MAX_VALUES*sizeof(Value));
 }
@@ -346,13 +346,13 @@ bool Ubidots::sendAll(unsigned long timestamp_global) {
     char str_values[10];
     
     if (timestamp_global!= NULL) {
-        if (_device_name == "GPRS") {
+        if (_device_label == "GPRS") {
             sprintf(allData, "%s/%s|POST|%s|%s@%lu%s=>", USER_AGENT, VERSION, _token, _device_label, timestamp_global, "000");
         } else {
             sprintf(allData, "%s/%s|POST|%s|%s:%s@%lu%s=>", USER_AGENT, VERSION, _token, _device_label, _device_name, timestamp_global, "000");
         }
     } else {
-        if (_device_name == "GPRS") {
+        if (_device_label == "GPRS") {
             sprintf(allData, "%s/%s|POST|%s|%s=>", USER_AGENT, VERSION, _token, _device_label);
         } else {
             sprintf(allData, "%s/%s|POST|%s|%s:%s=>", USER_AGENT, VERSION, _token, _device_label, _device_name);
