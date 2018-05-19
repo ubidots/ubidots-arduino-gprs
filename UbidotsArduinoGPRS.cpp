@@ -342,7 +342,8 @@ bool Ubidots::sendAll(){
 bool Ubidots::sendAll(unsigned long timestamp_global) {
      
     int i;
-    char* allData = (char *) malloc(sizeof(char) * 700);   
+    char* allData = (char *) malloc(sizeof(char) * 700);
+    free(allData); //Find error on Arduino mini pro. Fixed with this instance, maybe variable overflow. More details in description
     char str_values[10];
     
     if (timestamp_global!= NULL) {
