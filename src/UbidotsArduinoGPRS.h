@@ -34,41 +34,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-class Ubidots {
- public:
-  explicit Ubidots(char* token, char* server = SERVER);
-  bool init(Stream& port);
-  bool sendAll();
-  bool sendAll(unsigned long timestamp_global);
-  float getValueWithDevice(char* device_label, char* variable_label);
-  void add(char* variable_label, double value);
-  void add(char* variable_label, double value, char* ctext);
-  void add(char* variable_label, double value, char* ctext,
-           unsigned long timestamp);
-  void flushInput();
-  void setApn(char* apn = "", char* user = "", char* pwd = "");
-  void setDeviceName(char* deviceName);
-  void setDeviceLabel(char* deviceLabel);
-  void setDebug(bool debug);
-  unsigned long ntpUnixTime();
+#include "UbiTcp.h"
 
- private:
-  bool _debug = true;
-  bool isTimedOut(uint32_t ts) { return (long)(millis() - ts) >= 0; }
-  bool manageData(char* allData);
-  char* _apn;
-  char* _apn_user;
-  char* _apn_pwd;
-  char* _device_label;
-  char* _device_name;
-  char* _server;
-  char* _token;
-  char buffer[DEFAULT_BUFFER_SIZE];
-  char* readData(uint16_t timeout);
-  uint8_t _currentValue;
-  void powerUpOrDown();
-  Stream* client;
-  Value* val;
-};
+class Ubidots {};
 
 #endif

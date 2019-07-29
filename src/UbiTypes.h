@@ -23,13 +23,13 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #ifndef _UbiTypes_H_
 #define _UbiTypes_H_
 
-typedef struct Value {
+typedef struct Dot {
   char *variable_label;
   char *dot_context;
   float dot_value;
   unsigned long dot_timestamp_seconds;
   unsigned int dot_timestamp_millis;
-} Value;
+} Dot;
 
 typedef struct ContextUbi {
   char *key_label;

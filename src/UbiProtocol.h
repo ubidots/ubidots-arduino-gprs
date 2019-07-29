@@ -27,6 +27,15 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #include "UbiTypes.h"
 class UbiProtocol {
  public:
+  virtual void add(char* variable_label, float value) = 0;
+  virtual void add(char* variable_label, float value, char* context) = 0;
+  virtual void add(char* variable_label, float value, char* context,
+                   unsigned long dot_timestamp_seconds) = 0;
+  virtual void add(char* variable_label, float value, char* context,
+                   unsigned long dot_timestamp_seconds,
+                   unsigned int dot_timestamp_millis) = 0;
+  virtual void addContext(char* key_label, char* key_value) = 0;
+  virtual void getContext(char* context_result);
   virtual bool sendData(const char* device_label, const char* device_name,
                         const char* payload) = 0;
   virtual float get(const char* device_label, const char* variable_label) = 0;

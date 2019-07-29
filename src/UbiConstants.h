@@ -25,7 +25,7 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 
 #include "UbiTypes.h"
 
-const char* const USER_AGENT = "UbidotsGPRS/3.1";
+const char* const UBIDOTS_USER_AGENT = "UbidotsGPRS/3.1";
 const int UBIDOTS_HTTP_PORT = 80;
 const int UBIDOTS_TCP_PORT = 9012;
 const uint8_t MAX_VALUES = 10;

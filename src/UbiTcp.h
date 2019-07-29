@@ -24,10 +24,40 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #ifndef _UbiTcp_H_
 #define _UbiTcp_H_
 
+#include <Stream.h>
 #include "UbiProtocol.h"
+#include "UbiTypes.h"
 
 class UbiTcp : public UbiProtocol {
+ public:
+  UbiTcp(const char* token);
+  UbiTcp(const int port, const char* user_agent, const char* token);
+  UbiTcp(const char* user_agent, const char* token);
+  UbiTcp(const char* host, const int port, const char* user_agent,
+         const char* token);
+  /* Abstract methods */
+  void add(char* variable_label, float value);
+  void add(char* variable_label, float value, char* context);
+  void add(char* variable_label, float value, char* context,
+           unsigned long dot_timestamp_seconds);
+  void add(char* variable_label, float value, char* context,
+           unsigned long dot_timestamp_seconds,
+           unsigned int dot_timestamp_millis);
+  void addContext(char* key_label, char* key_value);
+  void getContext(char* context_result);
+  bool sendData(const char* device_label, const char* device_name,
+                const char* payload);
+  float get(const char* device_label, const char* variable_label);
   ~UbiTcp();
-}
+
+ private:
+  const char* _host;
+  const char* _user_agent;
+  const char* _token;
+  int _port;
+  uint8_t _currentDotValue = 0;
+  uint8_t _currentContextValue = 0;
+  void _buildTcpPayload(Dot* dot);
+};
 
 #endif
