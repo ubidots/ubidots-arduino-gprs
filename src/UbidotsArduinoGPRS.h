@@ -34,8 +34,45 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "UbiConstants.h"
+#include "UbiProtocol.h"
 #include "UbiTcp.h"
+#include "UbiTypes.h"
+#include "UbidotsArduinoGPRS.h"
 
-class Ubidots {};
+#include "GPRS_Shield_Arduino.h"
+#include "SoftwareSerial.h"
+#include "Wire.h"
+
+class Ubidots {
+ public:
+  Ubidots(const char* token);
+  void setSerialParams(const uint8_t tx, const uint8_t rx, uint32_t baudRate);
+  void setApnParams(const char* apn, const char* apnUsername,
+                    const char* apnPassword);
+  void add(char* variable_label, float dotValue);
+  void add(char* variable_label, float dotValuevalue, char* context);
+  void add(char* variable_label, float dotValue, char* context,
+           unsigned long dot_timestamp_seconds);
+  void add(char* variable_label, float dotValue, char* context,
+           unsigned long dot_timestamp_seconds,
+           unsigned int dot_timestamp_millis);
+  void addContext(char* key_label, char* key_value);
+  void getContext(char* context_result);
+
+ private:
+  uint8_t _tx = 7;
+  uint8_t _rx = 8;
+  uint32_t _baudRate = 9600;
+  char* _apn;
+  char* _apnUsername;
+  char* _apnPassword;
+  char* _token;
+  char* _default_device_label = "gprs";
+  Dot* _dots;
+  ContextUbi* _contextUbi;
+  uint8_t _currentDotValue = 0;
+  uint8_t _currentContextValue = 0;
+};
 
 #endif

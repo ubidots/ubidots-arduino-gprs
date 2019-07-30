@@ -35,7 +35,6 @@ class UbiTcp : public UbiProtocol {
   UbiTcp(const char* user_agent, const char* token);
   UbiTcp(const char* host, const int port, const char* user_agent,
          const char* token);
-  /* Abstract methods */
   void add(char* variable_label, float value);
   void add(char* variable_label, float value, char* context);
   void add(char* variable_label, float value, char* context,
@@ -45,6 +44,7 @@ class UbiTcp : public UbiProtocol {
            unsigned int dot_timestamp_millis);
   void addContext(char* key_label, char* key_value);
   void getContext(char* context_result);
+  /* Abstract methods */
   bool sendData(const char* device_label, const char* device_name,
                 const char* payload);
   float get(const char* device_label, const char* variable_label);

@@ -26,14 +26,17 @@
    https://github.com/mariacarlinahernandez
 */
 
+#include "UbidotsArduinoGPRS.h"
+
 /***************************************************************************
 CONSTRUCTOR
 ***************************************************************************/
 
-/**
- * Constructor.
- * Default device_label is GPRS
- */
+Ubidots::Ubidots(const char* token) {
+  _token = token;
+  _contextUbi = (ContextUbi*)malloc(MAX_VALUES * sizeof(ContextUbi));
+  _dots = (Dot*)malloc(MAX_VALUES * sizeof(Dot));
+}
 
 /***************************************************************************
 GPRS FUNCTIONS
@@ -50,3 +53,45 @@ FUNCTIONS TO SEND DATA
 /***************************************************************************
 AUXILIAR FUNCTIONS
 ***************************************************************************/
+
+void Ubidots::setSerialParams(const uint8_t tx, const uint8_t rx,
+                              uint32_t baudRate) {
+  _tx = tx;
+  _rx = rx;
+  _baudRate = baudRate;
+}
+
+void Ubidots::setApnParams(const char* apn, const char* apnUsername,
+                           const char* apnPassword) {
+  _apn = apn;
+  _apnUsername = apnUsername;
+  _apnPassword = apnPassword;
+}
+
+void Ubidots::add(char* variableLabel, float dotValue) {
+  add(variableLabel, dotValue, NULL, NULL, NULL);
+}
+void Ubidots::add(char* variableLabel, float dotValue, char* dotContext) {
+  add(variableLabel, dotValue, dotContext, NULL, NULL);
+}
+void Ubidots::add(char* variableLabel, float dotValue, char* dotContext,
+                  unsigned long dotTimestampSeconds) {
+  add(variableLabel, dotValue, dotContext, dotTimestampSeconds, NULL);
+}
+void Ubidots::add(char* variableLabel, float dotValue, char* dotContext,
+                  unsigned long dotTimestampSeconds,
+                  unsigned int dotTimestampMillis) {
+  (_dots + _currentDotValue)->variableLabel = variableLabel;
+  (_dots + _currentDotValue)->dotValue = dotValue;
+  (_dots + _currentDotValue)->dotContext = dotContext;
+  (_dots + _currentDotValue)->dotTimestampSeconds = dotTimestampSeconds;
+  (_dots + _currentDotValue)->dotTimestampMillis = dotTimestampMillis;
+  _currentDotValue++;
+  if (_currentDotValue > MAX_VALUES) {
+    Serial.println(
+        F("You are sending more than the maximum of consecutive variables"));
+    _currentDotValue = MAX_VALUES;
+  }
+}
+void Ubidots::addContext(char* key_label, char* key_value);
+void Ubidots::getContext(char* context_result);

@@ -24,16 +24,16 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #define _UbiTypes_H_
 
 typedef struct Dot {
-  char *variable_label;
-  char *dot_context;
-  float dot_value;
-  unsigned long dot_timestamp_seconds;
-  unsigned int dot_timestamp_millis;
+  char *variableLabel;
+  char *dotContext;
+  float dotValue;
+  unsigned long dotTimestampSeconds;
+  unsigned int dotTimestampMillis;
 } Dot;
 
 typedef struct ContextUbi {
-  char *key_label;
-  char *key_value;
+  char *keyLabel;
+  char *keyValue;
 } ContextUbi;
 
 typedef const char *UbiServer;
