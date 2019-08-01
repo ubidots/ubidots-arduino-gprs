@@ -35,7 +35,7 @@ CONSTRUCTOR
 Ubidots::Ubidots(const char* token) {
   _token = token;
   _contextUbi = (ContextUbi*)malloc(MAX_VALUES * sizeof(ContextUbi));
-  _dots = (Dot*)malloc(MAX_VALUES * sizeof(Dot));
+  _ubiTcpClient = new UbiTcp(_token, _tx, _rx, _baudRate);
 }
 
 /***************************************************************************
@@ -49,6 +49,17 @@ FUNCTIONS TO RETRIEVE DATA
 /***************************************************************************
 FUNCTIONS TO SEND DATA
 ***************************************************************************/
+
+bool Ubidots::send() { send(_defaultDeviceLabel, _defaultDeviceLabel); }
+
+bool Ubidots::send(const char* deviceLabel) { send(deviceLabel, deviceLabel); }
+
+bool Ubidots::send(const char* deviceLabel, const char* deviceName) {
+  char* payload = (char*)malloc(sizeof(char) * MAX_BUFFER_SIZE);
+  _buildTcpPayload(payload, deviceLabel, deviceName);
+  //_ubiTcpClient->sendData(deviceLabel, deviceName, payload);
+  free(payload);
+}
 
 /***************************************************************************
 AUXILIAR FUNCTIONS
@@ -78,20 +89,21 @@ void Ubidots::add(char* variableLabel, float dotValue, char* dotContext,
                   unsigned long dotTimestampSeconds) {
   add(variableLabel, dotValue, dotContext, dotTimestampSeconds, NULL);
 }
+
 void Ubidots::add(char* variableLabel, float dotValue, char* dotContext,
                   unsigned long dotTimestampSeconds,
                   unsigned int dotTimestampMillis) {
-  (_dots + _currentDotValue)->variableLabel = variableLabel;
-  (_dots + _currentDotValue)->dotValue = dotValue;
-  (_dots + _currentDotValue)->dotContext = dotContext;
-  (_dots + _currentDotValue)->dotTimestampSeconds = dotTimestampSeconds;
-  (_dots + _currentDotValue)->dotTimestampMillis = dotTimestampMillis;
-  _currentDotValue++;
-  if (_currentDotValue > MAX_VALUES) {
-    Serial.println(
-        F("You are sending more than the maximum of consecutive variables"));
-    _currentDotValue = MAX_VALUES;
-  }
+  // _ubiTcpClient->add(variableLabel, dotContext, dotTimestampSeconds,
+  //                    dotTimestampMillis);
 }
+
+void Ubidots::add(char* variableLabel, const char* dotValue, char* dotContext,
+                  unsigned long dotTimestampSeconds,
+                  unsigned int dotTimestampMillis) {
+  // _ubiTcpClient->add(variableLabel, dotValue, dotContext,
+  // dotTimestampSeconds,
+  //                    dotTimestampMillis);
+}
+
 void Ubidots::addContext(char* key_label, char* key_value);
 void Ubidots::getContext(char* context_result);

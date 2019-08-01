@@ -33,16 +33,15 @@
 #include <Stream.h>
 #include <stdint.h>
 #include <stdio.h>
+#include "GPRS_Shield_Arduino.h"
+#include "SoftwareSerial.h"
+#include "Wire.h"
 
 #include "UbiConstants.h"
 #include "UbiProtocol.h"
 #include "UbiTcp.h"
 #include "UbiTypes.h"
 #include "UbidotsArduinoGPRS.h"
-
-#include "GPRS_Shield_Arduino.h"
-#include "SoftwareSerial.h"
-#include "Wire.h"
 
 class Ubidots {
  public:
@@ -57,22 +56,29 @@ class Ubidots {
   void add(char* variable_label, float dotValue, char* context,
            unsigned long dot_timestamp_seconds,
            unsigned int dot_timestamp_millis);
+  void add(char* variable_label, const char* dotValue, char* context,
+           unsigned long dot_timestamp_seconds,
+           unsigned int dot_timestamp_millis);
   void addContext(char* key_label, char* key_value);
   void getContext(char* context_result);
+  bool send();
+  bool send(const char* device_label);
+  bool send(const char* device_label, const char* device_name);
 
  private:
   uint8_t _tx = 7;
   uint8_t _rx = 8;
   uint32_t _baudRate = 9600;
+  uint8_t _decimalPrecision = 5;
   char* _apn;
   char* _apnUsername;
   char* _apnPassword;
   char* _token;
-  char* _default_device_label = "gprs";
-  Dot* _dots;
+  char* _defaultDeviceLabel = "gprs";
   ContextUbi* _contextUbi;
-  uint8_t _currentDotValue = 0;
-  uint8_t _currentContextValue = 0;
+  void _buildTcpPayload(char* payload, const char* device_label,
+                        const char* device_name);
+  UbiProtocol* _ubiTcpClient;
 };
 
 #endif

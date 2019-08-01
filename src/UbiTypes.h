@@ -26,7 +26,7 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 typedef struct Dot {
   char *variableLabel;
   char *dotContext;
-  float dotValue;
+  char *dotValue;
   unsigned long dotTimestampSeconds;
   unsigned int dotTimestampMillis;
 } Dot;
