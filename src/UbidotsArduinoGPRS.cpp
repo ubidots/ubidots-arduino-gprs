@@ -20,10 +20,7 @@
     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-    Original Maker: Mateo Velez - Metavix
-    Modified and maintained by: Jose Garcia https://github.com/jotathebest
-                                Maria Carlina Hernandez
-   https://github.com/mariacarlinahernandez
+    Created and maintained by:  Jose Garcia https://github.com/jotathebest
 */
 
 #include "UbidotsArduinoGPRS.h"
@@ -37,6 +34,15 @@ Ubidots::Ubidots(const char* token, const uint8_t tx, const uint8_t rx,
   _token = token;
   _contextUbi = (ContextUbi*)malloc(MAX_VALUES * sizeof(ContextUbi));
   _ubiTcpClient = new UbiTcp(_token, tx, rx, baudRate);
+}
+
+/**************************************************************************
+ * Destructor
+ ***************************************************************************/
+
+Ubidots::~Ubidots() {
+  delete[] _token;
+  free(_contextUbi);
 }
 
 /***************************************************************************

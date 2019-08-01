@@ -40,9 +40,9 @@ UbiTcp::UbiTcp(const char* token, const uint8_t tx, const uint8_t rx,
  ***************************************************************************/
 
 UbiTcp::~UbiTcp() {
-  delete[] _host;
-  delete[] _user_agent;
   delete[] _token;
+  delete _gprs;
+  free(_dots);
 }
 
 bool UbiTcp::sendData(const char* deviceLabel, const char* deviceName) {}

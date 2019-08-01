@@ -62,6 +62,7 @@ class Ubidots {
   bool send();
   bool send(const char* device_label);
   bool send(const char* device_label, const char* device_name);
+  ~Ubidots();
 
  private:
   uint8_t _decimalPrecision = 5;

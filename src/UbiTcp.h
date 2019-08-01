@@ -57,8 +57,6 @@ class UbiTcp : public UbiProtocol {
   ~UbiTcp();
 
  private:
-  const char* _host;
-  const char* _user_agent;
   const char* _token;
   Dot* _dots;
   uint8_t _decimalPrecision = 5;
