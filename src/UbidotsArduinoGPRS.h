@@ -45,10 +45,8 @@
 
 class Ubidots {
  public:
-  Ubidots(const char* token);
-  void setSerialParams(const uint8_t tx, const uint8_t rx, uint32_t baudRate);
-  void setApnParams(const char* apn, const char* apnUsername,
-                    const char* apnPassword);
+  Ubidots(const char* token, const uint8_t tx = 7, const uint8_t rx = 8,
+          const uint32_t _baudRate = 9600);
   void add(char* variable_label, float dotValue);
   void add(char* variable_label, float dotValuevalue, char* context);
   void add(char* variable_label, float dotValue, char* context,
@@ -66,19 +64,13 @@ class Ubidots {
   bool send(const char* device_label, const char* device_name);
 
  private:
-  uint8_t _tx = 7;
-  uint8_t _rx = 8;
-  uint32_t _baudRate = 9600;
   uint8_t _decimalPrecision = 5;
-  char* _apn;
-  char* _apnUsername;
-  char* _apnPassword;
   char* _token;
   char* _defaultDeviceLabel = "gprs";
   ContextUbi* _contextUbi;
   void _buildTcpPayload(char* payload, const char* device_label,
                         const char* device_name);
-  UbiProtocol* _ubiTcpClient;
+  UbiTcp* _ubiTcpClient;
 };
 
 #endif

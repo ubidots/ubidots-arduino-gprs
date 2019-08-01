@@ -32,10 +32,11 @@
 CONSTRUCTOR
 ***************************************************************************/
 
-Ubidots::Ubidots(const char* token) {
+Ubidots::Ubidots(const char* token, const uint8_t tx, const uint8_t rx,
+                 const uint32_t baudRate) {
   _token = token;
   _contextUbi = (ContextUbi*)malloc(MAX_VALUES * sizeof(ContextUbi));
-  _ubiTcpClient = new UbiTcp(_token, _tx, _rx, _baudRate);
+  _ubiTcpClient = new UbiTcp(_token, tx, rx, baudRate);
 }
 
 /***************************************************************************
@@ -57,27 +58,13 @@ bool Ubidots::send(const char* deviceLabel) { send(deviceLabel, deviceLabel); }
 bool Ubidots::send(const char* deviceLabel, const char* deviceName) {
   char* payload = (char*)malloc(sizeof(char) * MAX_BUFFER_SIZE);
   _buildTcpPayload(payload, deviceLabel, deviceName);
-  //_ubiTcpClient->sendData(deviceLabel, deviceName, payload);
+  _ubiTcpClient->sendData(deviceLabel, deviceName);
   free(payload);
 }
 
 /***************************************************************************
 AUXILIAR FUNCTIONS
 ***************************************************************************/
-
-void Ubidots::setSerialParams(const uint8_t tx, const uint8_t rx,
-                              uint32_t baudRate) {
-  _tx = tx;
-  _rx = rx;
-  _baudRate = baudRate;
-}
-
-void Ubidots::setApnParams(const char* apn, const char* apnUsername,
-                           const char* apnPassword) {
-  _apn = apn;
-  _apnUsername = apnUsername;
-  _apnPassword = apnPassword;
-}
 
 void Ubidots::add(char* variableLabel, float dotValue) {
   add(variableLabel, dotValue, NULL, NULL, NULL);
@@ -93,16 +80,15 @@ void Ubidots::add(char* variableLabel, float dotValue, char* dotContext,
 void Ubidots::add(char* variableLabel, float dotValue, char* dotContext,
                   unsigned long dotTimestampSeconds,
                   unsigned int dotTimestampMillis) {
-  // _ubiTcpClient->add(variableLabel, dotContext, dotTimestampSeconds,
-  //                    dotTimestampMillis);
+  _ubiTcpClient->add(variableLabel, dotValue, dotContext, dotTimestampSeconds,
+                     dotTimestampMillis);
 }
 
 void Ubidots::add(char* variableLabel, const char* dotValue, char* dotContext,
                   unsigned long dotTimestampSeconds,
                   unsigned int dotTimestampMillis) {
-  // _ubiTcpClient->add(variableLabel, dotValue, dotContext,
-  // dotTimestampSeconds,
-  //                    dotTimestampMillis);
+  _ubiTcpClient->add(variableLabel, dotValue, dotContext, dotTimestampSeconds,
+                     dotTimestampMillis);
 }
 
 void Ubidots::addContext(char* key_label, char* key_value);
