@@ -45,7 +45,49 @@ UbiTcp::~UbiTcp() {
   free(_dots);
 }
 
-bool UbiTcp::sendData(const char* deviceLabel, const char* deviceName) {}
+bool UbiTcp::sendData(const char* deviceLabel, const char* deviceName) {
+  if (!_moduleIsReady()) return false;
+
+  // Attempts to connect to Ubidots
+  uint8_t attempts = 0;
+  Serial.println("Attempting to connect to Ubidots");
+  while (!_gprs->connect(TCP, UBI_INDUSTRIAL, UBIDOTS_TCP_PORT) &&
+         attempts < 5) {
+    Serial.print(".");
+    attempts += 1;
+    delay(1000);
+  }
+  if (!_gprs->connect(TCP, UBI_INDUSTRIAL, UBIDOTS_TCP_PORT)) {
+    Serial.println(
+        "Could not connect to Ubidots, please check your device cloud "
+        "connection");
+    return false;
+  }
+  Serial.println("finished");
+
+  // Sending data to Ubidots
+
+  char* payload = (char*)malloc(sizeof(char) * MAX_BUFFER_SIZE);
+  char buffer[512];
+  _buildTcpPayload(payload, deviceLabel, deviceName);
+  _gprs->send(payload, sizeof(payload) - 1);
+  while (true) {
+    int ret = _gprs->recv(buffer, sizeof(buffer) - 1);
+    if (ret <= 0) {
+      Serial.println("fetch over...");
+      break;
+    }
+    buffer[ret] = '\0';
+    Serial.print("Recv: ");
+    Serial.print(ret);
+    Serial.print(" bytes: ");
+    Serial.println(buffer);
+  }
+  _gprs->close();
+  _gprs->disconnect();
+
+  free(payload);
+}
 
 float UbiTcp::get(const char* deviceLabel, const char* variable_label) {}
 
@@ -131,4 +173,52 @@ void UbiTcp::_buildTcpPayload(char* payload, const char* deviceLabel,
       _currentDotValue = 0;
     }
   }
+}
+
+bool UbiTcp::_moduleIsReady() {
+  _gprs->checkPowerUp();
+
+  // Checks if module is turned on
+  uint8_t attempts = 0;
+  Serial.println("Checking if GPRS is on");
+  while (!_gprs->init() && attempts < 5) {
+    Serial.print(".");
+    attempts += 1;
+    delay(1000);
+  }
+  if (!_gprs->init()) {
+    Serial.println("Could not initialize the GPRS module");
+    return false;
+  }
+  Serial.println("finished");
+
+  // Checks if there is sim card inside the shield
+  attempts = 0;
+  Serial.println("Checking if there is a connected SIM");
+  while (!_gprs->isNetworkRegistered() && attempts < 5) {
+    Serial.print(".");
+    attempts += 1;
+    delay(1000);
+  }
+  if (!_gprs->isNetworkRegistered()) {
+    Serial.println("Could not detect a connected SIM");
+    return false;
+  }
+  Serial.println("finished");
+
+  // Attempts to Join to GPRS network
+  attempts = 0;
+  Serial.println("Attempting to open socket with GPRS service provider");
+  while (!_gprs->join(F("aa")) && attempts < 5) {
+    Serial.print(".");
+    attempts += 1;
+    delay(1000);
+  }
+  if (!_gprs->join(F("aa"))) {
+    Serial.println(
+        "Could not connect, please check your APN and username settings");
+    return false;
+  }
+
+  return true;
 }

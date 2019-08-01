@@ -63,6 +63,7 @@ class UbiTcp : public UbiProtocol {
   uint8_t _currentDotValue = 0;
   uint8_t _currentContextValue = 0;
   int _port;
+  bool _moduleIsReady();
   void _buildTcpPayload(char* payload, const char* deviceLabel,
                         const char* deviceName);
   GPRS* _gprs;
