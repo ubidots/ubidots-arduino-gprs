@@ -95,28 +95,34 @@ float UbiTcp::get(const char* deviceLabel, const char* variable_label) {}
  * Auxiliar Functions
  ***************************************************************************/
 
-void UbiTcp::add(char* variableLabel, float dotValue) {
+void UbiTcp::add(const char* variableLabel, float dotValue) {
   add(variableLabel, dotValue, NULL, NULL, NULL);
 }
-void UbiTcp::add(char* variableLabel, float dotValue, char* dotContext) {
+
+void UbiTcp::add(const char* variableLabel, const char* dotValue) {
+  add(variableLabel, dotValue, NULL, NULL, NULL);
+}
+
+void UbiTcp::add(const char* variableLabel, float dotValue,
+                 const char* dotContext) {
   add(variableLabel, dotValue, dotContext, NULL, NULL);
 }
-void UbiTcp::add(char* variableLabel, float dotValue, char* dotContext,
-                 unsigned long dotTimestampSeconds) {
+void UbiTcp::add(const char* variableLabel, float dotValue,
+                 const char* dotContext, unsigned long dotTimestampSeconds) {
   add(variableLabel, dotValue, dotContext, dotTimestampSeconds, NULL);
 }
 
-void UbiTcp::add(char* variableLabel, float dotValue, char* dotContext,
-                 unsigned long dotTimestampSeconds,
+void UbiTcp::add(const char* variableLabel, float dotValue,
+                 const char* dotContext, unsigned long dotTimestampSeconds,
                  unsigned int dotTimestampMillis) {
   char buf[33];
   dtostrf(dotValue, (_decimalPrecision + 2), _decimalPrecision, buf);
-
-  add(variableLabel, buf, dotContext, dotTimestampSeconds, dotTimestampMillis);
+  const char* ptr = buf;
+  add(variableLabel, ptr, dotContext, dotTimestampSeconds, dotTimestampMillis);
 }
 
-void UbiTcp::add(char* variableLabel, const char* dotValue, char* dotContext,
-                 unsigned long dotTimestampSeconds,
+void UbiTcp::add(const char* variableLabel, const char* dotValue,
+                 const char* dotContext, unsigned long dotTimestampSeconds,
                  unsigned int dotTimestampMillis) {
   (_dots + _currentDotValue)->variableLabel = variableLabel;
   (_dots + _currentDotValue)->dotValue = dotValue;

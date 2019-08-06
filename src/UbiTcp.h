@@ -39,18 +39,19 @@ class UbiTcp : public UbiProtocol {
  public:
   UbiTcp(const char* token, const uint8_t tx, const uint8_t rx,
          const uint32_t baudrate);
-  void add(char* variable_label, float value);
-  void add(char* variable_label, float value, char* context);
-  void add(char* variable_label, float value, char* context,
+  void add(const char* variable_label, float value);
+  void add(const char* variable_label, const char* value);
+  void add(const char* variable_label, float value, const char* context);
+  void add(const char* variable_label, float value, const char* context,
            unsigned long dot_timestamp_seconds);
-  void add(char* variable_label, float value, char* context,
+  void add(const char* variable_label, float value, const char* context,
            unsigned long dot_timestamp_seconds,
            unsigned int dot_timestamp_millis);
-  void add(char* variable_label, const char* value, char* context,
+  void add(const char* variable_label, const char* value, const char* context,
            unsigned long dot_timestamp_seconds,
            unsigned int dot_timestamp_millis);
-  void addContext(char* key_label, char* key_value);
-  void getContext(char* context_result);
+  void addContext(const char* key_label, const char* key_value);
+  void getContext(const char* context_result);
   /* Abstract methods */
   bool sendData(const char* device_label, const char* device_name);
   float get(const char* device_label, const char* variable_label);

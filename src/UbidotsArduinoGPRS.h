@@ -47,18 +47,20 @@ class Ubidots {
  public:
   Ubidots(const char* token, const uint8_t tx = 7, const uint8_t rx = 8,
           const uint32_t _baudRate = 9600);
-  void add(char* variable_label, float dotValue);
-  void add(char* variable_label, float dotValuevalue, char* context);
-  void add(char* variable_label, float dotValue, char* context,
+  void add(const char* variable_label, float dotValue);
+  void add(const char* variable_label, const char* dotValue);
+  void add(const char* variable_label, float dotValuevalue,
+           const char* context);
+  void add(const char* variable_label, float dotValue, const char* context,
            unsigned long dot_timestamp_seconds);
-  void add(char* variable_label, float dotValue, char* context,
+  void add(const char* variable_label, float dotValue, const char* context,
            unsigned long dot_timestamp_seconds,
            unsigned int dot_timestamp_millis);
-  void add(char* variable_label, const char* dotValue, char* context,
-           unsigned long dot_timestamp_seconds,
+  void add(const char* variable_label, const char* dotValue,
+           const char* context, unsigned long dot_timestamp_seconds,
            unsigned int dot_timestamp_millis);
-  void addContext(char* key_label, char* key_value);
-  void getContext(char* context_result);
+  void addContext(const char* key_label, const char* key_value);
+  void getContext(const char* context_result);
   bool send();
   bool send(const char* device_label);
   bool send(const char* device_label, const char* device_name);
@@ -66,7 +68,7 @@ class Ubidots {
 
  private:
   uint8_t _decimalPrecision = 5;
-  char* _token;
+  const char* _token;
   char* _defaultDeviceLabel = "gprs";
   ContextUbi* _contextUbi;
   void _buildTcpPayload(char* payload, const char* device_label,
