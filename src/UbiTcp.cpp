@@ -49,21 +49,7 @@ bool UbiTcp::sendData(const char* deviceLabel, const char* deviceName) {
   if (!_moduleIsReady()) return false;
 
   // Attempts to connect to Ubidots
-  uint8_t attempts = 0;
-  Serial.println("Attempting to connect to Ubidots");
-  while (!_gprs->connect(TCP, UBI_INDUSTRIAL, UBIDOTS_TCP_PORT) &&
-         attempts < 5) {
-    Serial.print(".");
-    attempts += 1;
-    delay(1000);
-  }
-  if (!_gprs->connect(TCP, UBI_INDUSTRIAL, UBIDOTS_TCP_PORT)) {
-    Serial.println(
-        "Could not connect to Ubidots, please check your device cloud "
-        "connection");
-    return false;
-  }
-  Serial.println("finished");
+  if (!_connect()) return false;
 
   // Sending data to Ubidots
 
@@ -89,7 +75,72 @@ bool UbiTcp::sendData(const char* deviceLabel, const char* deviceName) {
   free(payload);
 }
 
-float UbiTcp::get(const char* deviceLabel, const char* variable_label) {}
+float UbiTcp::get(const char* deviceLabel, const char* variableLabel) {
+  if (!_moduleIsReady()) return ERROR_VALUE;
+  /* Connecting the client */
+  if (!_connect()) return false;
+
+  /* Builds the request POST - Please reference this link to know all the
+   * request's structures https://ubidots.com/docs/api/ */
+
+  char payload[MAX_BUFFER_SIZE];
+  sprintf(payload, "%s|LV|%s|%s:%s|end", UBIDOTS_USER_AGENT, _token,
+          deviceLabel, variableLabel);
+
+  Serial.println(payload);
+  _gprs->send(payload, sizeof(payload) - 1);
+
+  while (true) {
+    int ret = _gprs->recv(payload, sizeof(payload) - 1);
+    if (ret <= 0) {
+      Serial.println("fetch over...");
+      break;
+    }
+    payload[ret] = '\0';
+    Serial.print("Recv: ");
+    Serial.print(ret);
+    Serial.print(" bytes: ");
+    Serial.println(payload);
+  }
+  _gprs->close();
+  _gprs->disconnect();
+
+  /*_client_tcp_ubi.print(_user_agent);
+  _client_tcp_ubi.print("|LV|");
+  _client_tcp_ubi.print(_token);
+  _client_tcp_ubi.print("|");
+  _client_tcp_ubi.print(device_label);
+  _client_tcp_ubi.print(":");
+  _client_tcp_ubi.print(variable_label);
+  _client_tcp_ubi.print("|end");
+
+  if (_debug) {
+    Serial.println("----");
+    Serial.println("Payload for request:");
+    Serial.print(_user_agent);
+    Serial.print("|LV|");
+    Serial.print(_token);
+    Serial.print("|");
+    Serial.print(device_label);
+    Serial.print(":");
+    Serial.print(variable_label);
+    Serial.print("|end");
+    Serial.println("\n----");
+  }*/
+
+  /* Waits for the host's answer */
+  /*if (!waitServerAnswer()) {
+    _client_tcp_ubi.stop();
+    return ERROR_VALUE;
+  }*/
+
+  /* Reads the response from the server */
+  /*char* response = (char*)malloc(sizeof(char) * MAX_BUFFER_SIZE);
+  float value = parseTCPAnswer("LV", response);
+  _client_tcp_ubi.stop();
+  free(response);
+  return value;*/
+}
 
 /**************************************************************************
  * Auxiliar Functions
@@ -107,6 +158,7 @@ void UbiTcp::add(const char* variableLabel, float dotValue,
                  const char* dotContext) {
   add(variableLabel, dotValue, dotContext, NULL, NULL);
 }
+
 void UbiTcp::add(const char* variableLabel, float dotValue,
                  const char* dotContext, unsigned long dotTimestampSeconds) {
   add(variableLabel, dotValue, dotContext, dotTimestampSeconds, NULL);
@@ -227,4 +279,54 @@ bool UbiTcp::_moduleIsReady() {
   }
 
   return true;
+}
+
+bool UbiTcp::_connect() {
+  uint8_t attempts = 0;
+  Serial.println("Attempting to connect to Ubidots");
+  while (!_gprs->connect(TCP, UBI_INDUSTRIAL, UBIDOTS_TCP_PORT) &&
+         attempts < 5) {
+    Serial.print(".");
+    attempts += 1;
+    delay(1000);
+  }
+  if (!_gprs->connect(TCP, UBI_INDUSTRIAL, UBIDOTS_TCP_PORT)) {
+    Serial.println(
+        "Could not connect to Ubidots, please check your device cloud "
+        "connection");
+    return false;
+  }
+  Serial.println("finished");
+  return true;
+}
+
+/**
+ * Parse the TCP host answer and saves it to the input char pointer.
+ * @payload [Mandatory] char payload pointer to store the host answer.
+ * @return true if there is an 'Ok' in the answer, false if not.
+ */
+
+float UbiTcp::_parseTCPAnswer(const char* request_type, char* response) {
+  int j = 0;
+  Serial.println("----------");
+  Serial.println("Server's response:");
+
+  float result = ERROR_VALUE;
+
+  // POST
+  if (request_type == "POST") {
+    char* pch = strstr(response, "OK");
+    if (pch != NULL) {
+      result = 1;
+    }
+    return result;
+  }
+
+  // LV
+  char* pch = strchr(response, '|');
+  if (pch != NULL) {
+    result = atof(pch + 1);
+  }
+
+  return result;
 }

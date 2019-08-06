@@ -67,6 +67,8 @@ class UbiTcp : public UbiProtocol {
   bool _moduleIsReady();
   void _buildTcpPayload(char* payload, const char* deviceLabel,
                         const char* deviceName);
+  bool _connect();
+  float _parseTCPAnswer(const char* request_type, char* response);
   GPRS* _gprs;
 };
 
