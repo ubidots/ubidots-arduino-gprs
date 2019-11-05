@@ -30,7 +30,6 @@ Inc
 
 #include "UbiConstants.h"
 #include "stdint.h"
-#include "utils.h"
 
 class UbiProtocol {
 public:
