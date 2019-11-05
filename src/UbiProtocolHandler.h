@@ -53,7 +53,7 @@ private:
                 IotProtocol iotProtocol = UBI_TCP);
 
   void _floatToChar(char *value_str, float value);
-  
+
 public:
   explicit UbiProtocolHandler(const char *token, IotProtocol iot_protocol);
   explicit UbiProtocolHandler(const char *token,
@@ -69,9 +69,8 @@ public:
            unsigned long dot_timestamp_seconds,
            unsigned int dot_timestamp_millis);
 
-  bool send();
-  bool send(const char *device_label);
-  bool send(const char *device_label, const char *device_name);
+  bool send(const char *device_label,
+                                const char *device_name);
 
   float get(const char *device_label, const char *variable_label);
 
@@ -79,7 +78,6 @@ public:
 
   bool serverConnected();
   ~UbiProtocolHandler();
-
 };
 
 #endif

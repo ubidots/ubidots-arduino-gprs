@@ -34,6 +34,8 @@ private:
   int8_t _current_context = 0;
 
   // Only non-Xenon devices support cloud communication
+  
+  char _defaultDeviceLabel[18];
   UbiProtocolHandler *_cloudProtocol;
   ContextUbi *_context;
   IotProtocol _iotProtocol;

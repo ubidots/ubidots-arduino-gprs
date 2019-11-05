@@ -113,11 +113,12 @@ void Ubidots::add(const char *variable_label, float value, char *context,
  * for TCP/UDP)
  * @arg flags [Optional] Particle publish flags for webhooks
  */
-
-bool Ubidots::send() { return _cloudProtocol->send(); }
+bool Ubidots::send() {
+  return send(_defaultDeviceLabel, _defaultDeviceLabel);
+}
 
 bool Ubidots::send(const char *device_label) {
-  return _cloudProtocol->send(device_label);
+  return send(device_label, device_label);
 }
 
 bool Ubidots::send(const char *device_label, const char *device_name) {

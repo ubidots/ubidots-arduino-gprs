@@ -123,13 +123,6 @@ void UbiProtocolHandler::add(const char *variable_label, float value,
  * @arg device_name [optional] Name of the device to be created (supported only
  * for TCP/UDP)
  */
-bool UbiProtocolHandler::send() {
-  return send(_defaultDeviceLabel, _defaultDeviceLabel);
-}
-
-bool UbiProtocolHandler::send(const char *device_label) {
-  return send(device_label, device_label);
-}
 
 bool UbiProtocolHandler::send(const char *device_label,
                               const char *device_name) {
