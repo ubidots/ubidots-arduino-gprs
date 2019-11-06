@@ -24,6 +24,7 @@ Inc
 */
 
 #include "Ubidots.h"
+#include "GPRS_Shield_Arduino.h"
 
 /**************************************************************************
  * Overloaded constructors
@@ -40,7 +41,7 @@ Ubidots::Ubidots(const char *token, UbiServer server, IotProtocol iotProtocol) {
 Ubidots::Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser = BLANK,
                  UbiApn apnPass = BLANK, UbiServer server = UBI_INDUSTRIAL,
                  IotProtocol iotProtocol = UBI_TCP) {
-
+  getDeviceIMEI(_defaultDeviceLabel);
   _builder(token, apn, apnUser, apnPass, server, iotProtocol);
 }
 
@@ -113,9 +114,7 @@ void Ubidots::add(const char *variable_label, float value, char *context,
  * for TCP/UDP)
  * @arg flags [Optional] Particle publish flags for webhooks
  */
-bool Ubidots::send() {
-  return send(_defaultDeviceLabel, _defaultDeviceLabel);
-}
+bool Ubidots::send() { return send(_defaultDeviceLabel, _defaultDeviceLabel); }
 
 bool Ubidots::send(const char *device_label) {
   return send(device_label, device_label);
@@ -197,8 +196,32 @@ void Ubidots::getContext(char *context_result, IotProtocol iotProtocol) {
   }
 }
 
-bool Ubidots::connect(const char *ssid, const char *password) { return true; }
-
-bool Ubidots::connected() { return true; }
-
 bool Ubidots::serverConnected() { return _cloudProtocol->serverConnected(); }
+
+void Ubidots::getDeviceIMEI(char IMEI[]) {
+  const uint8_t IMEI_SIZE = 20;
+
+  GPRS *gprs = GPRS::getInstance();
+
+  auto getIMEI = [IMEI_SIZE](GPRS *gprs, char *IMEI) -> void {
+    gprs->send("AT+GSN=?");
+
+    char *response = (char *)malloc(IMEI_SIZE * sizeof(char));
+
+    while (true) {
+      int ret = gprs->recv(response, IMEI_SIZE);
+      if (ret <= 0) {
+        break;
+      }
+      response[ret] = '\0';
+    }
+    strcpy(IMEI, response);
+  };
+
+  if (gprs == NULL) {
+    gprs = new GPRS(7, 8, 19200); // RX TX BAUDRATE
+    getIMEI(gprs, IMEI);
+  } else {
+    getIMEI(gprs, IMEI);
+  }
+}

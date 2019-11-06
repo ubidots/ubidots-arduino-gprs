@@ -34,7 +34,7 @@ private:
   int8_t _current_context = 0;
 
   // Only non-Xenon devices support cloud communication
-  
+
   char _defaultDeviceLabel[18];
   UbiProtocolHandler *_cloudProtocol;
   ContextUbi *_context;
@@ -45,6 +45,7 @@ private:
   void _builder(UbiToken token, UbiApn apn, UbiApn apnUser = BLANK,
                 UbiApn apnPass = BLANK, UbiServer server = UBI_INDUSTRIAL,
                 IotProtocol iotProtocol = UBI_TCP);
+
 
 public:
   explicit Ubidots(UbiToken token, IotProtocol iotProtocol);
@@ -77,10 +78,9 @@ public:
 
   void setDebug(bool debug);
 
-  bool connect(const char *ssid, const char *password);
-  bool connected();
-
   bool serverConnected();
+
+  void getDeviceIMEI(char IMEI[]);
 
   ~Ubidots();
 };
