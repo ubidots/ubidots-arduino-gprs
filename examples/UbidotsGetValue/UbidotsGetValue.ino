@@ -10,12 +10,12 @@
  * Define Constants
  ****************************************/
 // Your GPRS credentials, if any
-#define APN             "Put_the_APN_here" 
-#define USER            "Put_the_APN_user_here"
-#define PASS            "Put_the_APN_pwd_here"  
-#define TOKEN           "Put_your_Ubidots_token_here" 
-#define DEVICE_LABEL    "Put_your_device_API_label" 
-#define VARIABLE_LABEL  "Put_your_variable_API_label" 
+const char *APN  =           "Put_the_APN_here" 
+const char *USER =           "Put_the_APN_user_here"
+const char *PASS =           "Put_the_APN_pwd_here"  
+const char *TOKEN=           "Put_your_Ubidots_token_here" 
+const char *DEVICE_LABEL=    "Put_your_device_API_label" 
+const char *VARIABLE_LABEL= "Put_your_variable_API_label" 
 
 Ubidots client(TOKEN,APN,USER,PASS);
 
