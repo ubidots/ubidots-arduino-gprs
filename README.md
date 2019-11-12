@@ -43,8 +43,8 @@ Ubidots(const char* token, const char* apn, const char* apnUser,const char* apnP
 ```
 > @token, [Required]. Your Ubidots unique account [TOKEN](http://help.ubidots.com/user-guides/find-your-token-from-your-ubidots-account).
 > @apn, [Required]. Your simcard operator APN setting, usually it's an URL.
-> @apnUser, [Optional]. Your APN user set by the Simcard operator, some operators don't use an user to authenticate.
-> @apnPass, [Optional].  Your APN password set by the Simcard operator, some operators don't use a password to authenticate.
+> @apnUser, [Required]. Your APN user set by the Simcard operator, some operators don't use an user to authenticate.
+> @apnPass, [Required].  Your APN password set by the Simcard operator, some operators don't use a password to authenticate.
 > @server, [Optional], [Options] = [`UBI_INDUSTRIAL`, `UBI_EDUCATIONAL`], [Default] = `UBI_INDUSTRIAL`. The server to send data, set `UBI_EDUCATIONAL` if your account is educational type.  
 > @iot_protocol, [Optional], [Options] = [`UBI_HTTP`, `UBI_TCP`, `UBI_UDP`], [Default] = `UBI_TCP`. The IoT protocol that you will use to send or retrieve data.
 
