@@ -30,14 +30,13 @@ Inc
 
 #include "UbiProtocol.h"
 
-#include <time.h>
-
 #define _F(string) reinterpret_cast<__FlashStringHelper *>(const_cast<char *>(string))
 
 #define RX 7
 #define TX 8
 #define BAUDRATE 19200
 #define SIM900_POWER_UP_PIN 9
+#define APN "web.colombiamovil.com.co"
 
 class UbiTCP : public UbiProtocol {
 
@@ -60,15 +59,16 @@ private:
   int _port;
 
   float _parseTCPAnswer(const char *request_type, char *response);
-  bool _isInitGPRS();
+  bool _initGPRS();
   bool _isNetworkRegistered();
   bool _isJoinedToNetwork();
   bool _connectToServer();
+  bool _checkIpAddress();
+  void _guaranteePowerOn();
 
   uint16_t _endpointLength(const char *device_label,
                            const char *variable_label);
-  bool _syncronizeTime();
-  bool _loadCert();
+
   bool _preConnectionChecks();
 
 public:

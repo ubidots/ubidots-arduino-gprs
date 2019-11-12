@@ -38,11 +38,10 @@ Ubidots::Ubidots(const char *token, UbiServer server, IotProtocol iotProtocol) {
   _builder(token, server, iotProtocol);
 }
 
-Ubidots::Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser = BLANK,
-                 UbiApn apnPass = BLANK, UbiServer server = UBI_INDUSTRIAL,
-                 IotProtocol iotProtocol = UBI_TCP) {
-  getDeviceIMEI(_defaultDeviceLabel);
+Ubidots::Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass,
+                 UbiServer server, IotProtocol iotProtocol) {
   _builder(token, apn, apnUser, apnPass, server, iotProtocol);
+  getDeviceIMEI(_defaultDeviceLabel);
 }
 
 void Ubidots::_builder(const char *token, UbiServer server,
@@ -203,6 +202,10 @@ void Ubidots::getDeviceIMEI(char IMEI[]) {
 
   GPRS *gprs = GPRS::getInstance();
 
+  if (_debug) {
+    Serial.println("Getting device IMEI");
+  }
+
   auto getIMEI = [IMEI_SIZE](GPRS *gprs, char *IMEI) -> void {
     gprs->send("AT+GSN=?");
 
@@ -221,7 +224,8 @@ void Ubidots::getDeviceIMEI(char IMEI[]) {
   if (gprs == NULL) {
     gprs = new GPRS(7, 8, 19200); // RX TX BAUDRATE
     getIMEI(gprs, IMEI);
-  } else {
+  }
+  else {
     getIMEI(gprs, IMEI);
   }
 }
