@@ -55,14 +55,6 @@ UbiTCP::UbiTCP(UbiToken token, UbiServer server, const int port,
   _apnPass = apnPass;
 
   _client_tcp = new GPRS(RX, TX, BAUDRATE);
-
-  pinMode(SIM900_POWER_UP_PIN, OUTPUT);
-
-  _client_tcp->powerUpDown();
-
-  delay(1000);
-
-  _client_tcp->checkPowerUp();
 }
 
 /**************************************************************************
@@ -98,7 +90,7 @@ bool UbiTCP::sendData(const char *device_label, const char *device_name,
                       char *payload) {
 
   if (!_preConnectionChecks()) {
-    return ERROR_VALUE;
+    return false;
   }
 
   _client_tcp->send(payload);
@@ -164,12 +156,15 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
  * @return true The device is responding to the commands
  * @return false The device is not reponding, probably bad Serial communication
  */
-bool UbiTCP::_isInitGPRS() {
+bool UbiTCP::_initGPRS() {
+
+  _guaranteePowerOn();
 
   uint8_t attempts = 0;
   bool flag = true;
   if (_debug) {
     Serial.print("Start TCP Connection...\r\n");
+    Serial.print("Initializing module...\r\n");
   }
 
   // use DHCP
@@ -182,7 +177,7 @@ bool UbiTCP::_isInitGPRS() {
     }
 
     if (_debug) {
-      Serial.print("Initializing...\r\n");
+      Serial.print("Checking Serial connection...\r\n");
     }
   }
 
@@ -196,6 +191,7 @@ bool UbiTCP::_isInitGPRS() {
  * @return false The device could connect to it, probably the frequency
  */
 bool UbiTCP::_isNetworkRegistered() {
+
   uint8_t attempts = 0;
   bool flag = true;
 
@@ -213,6 +209,10 @@ bool UbiTCP::_isNetworkRegistered() {
     }
   }
 
+  if (_debug) {
+    Serial.println("Network has been registered into the module");
+  }
+
   return flag;
 }
 
@@ -225,28 +225,85 @@ bool UbiTCP::_isJoinedToNetwork() {
 
   uint8_t attempts = 0;
   bool flag = true;
+  bool isJoined = false;
 
   // use DHCP
-  while (!_client_tcp->join(_F(_apn), _F(_apnUser), _F(_apnPass)) &&
-         attempts < 5) {
+  while (!isJoined && attempts < 5) {
+    isJoined = _client_tcp->join(F(APN), F(""), F(""));
     delay(2000);
-    if (_debug) {
-      Serial.println("Error joining the network");
-    }
     attempts += 1;
+    if (attempts == 1) {
+      if (_debug) {
+        Serial.print("Network status: ");
+        Serial.println(isJoined ? "Joined" : "Not Joined");
+        Serial.println("Simcard Credentials");
+        Serial.print("Apn: ");
+        Serial.println(_apn);
+        Serial.print("User: ");
+        Serial.println(_apnUser);
+        Serial.print("Pass: ");
+        Serial.println(_apnPass);
+        Serial.println();
+      }
+    }
+
+    if (_debug) {
+      Serial.print("Trying to join to the network [");
+      Serial.print(attempts);
+      Serial.println("]");
+    }
+
     if (attempts == 5) {
+      if (_debug) {
+        Serial.println("Error joining the network");
+      }
       flag = false;
       break;
     }
   }
 
   if (_debug && flag) {
+    Serial.print("Network status: ");
+    Serial.println(isJoined ? "Joined" : "Not Joined");
     // successful DHCP
     Serial.print("IP Address is ");
     Serial.println(_client_tcp->getIPAddress());
+
+    if (!_checkIpAddress()) {
+      Serial.println("IpAddres NOT VALID!");
+      _isJoinedToNetwork();
+    }
   }
 
   return flag;
+}
+
+/**
+ * @brief Check the Octecs from the IP Address to make a valid request for the
+ * IMEI, it splits the IP into tokes by the "." sparator, if there are 4 so it
+ * is ok
+ *
+ * @return true There a valid connection to internet
+ * @return false There is NOT a valid connection to internet
+ */
+bool UbiTCP::_checkIpAddress() {
+  char *ipAddress = _client_tcp->getIPAddress();
+  char *separator = ".";
+  char *octet;
+
+  uint8_t octecNumber = 0;
+  octet = strtok(ipAddress, separator);
+
+  while (octet != NULL) {
+    octecNumber += 1;
+    octet = strtok(NULL, separator);
+  }
+
+  if (octecNumber == 4) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /**
@@ -359,30 +416,6 @@ void UbiTCP::setDebug(bool debug) { _debug = debug; }
 bool UbiTCP::serverConnected() { return _server_connected; }
 
 /**
- * @brief Syncronizes the internal timer with the Ubidots TCP endpoint
- *
- * @return true Time sincronized
- * @return false There is a problem fetching the time
- */
-bool UbiTCP::_syncronizeTime() {
-  // Synchronizes time using SNTP. This is necessary to verify that
-  // the TLS certificates offered by the server are currently valid.
-
-  return true;
-}
-
-/**
- * @brief Loads the certified from the constants file
- *
- * @return true
- * @return false
- */
-bool UbiTCP::_loadCert() {
-  // Loads root certificate in DER format into WiFiClientSecure object
-  return true;
-}
-
-/**
  * @brief Handle the proper behavior of the SIM900 before fetching or sending
  * data to Ubidots
  *
@@ -391,23 +424,48 @@ bool UbiTCP::_loadCert() {
  */
 bool UbiTCP::_preConnectionChecks() {
   /* Synchronizes time every 60 minutes */
-  bool connectionFlag = true;
 
-  if (!_isInitGPRS()) {
-    connectionFlag = false;
+  if (!_initGPRS()) {
+    return false;
   }
 
   if (!_isNetworkRegistered()) {
-    connectionFlag = false;
+    return false;
   }
 
   if (!_isJoinedToNetwork()) {
-    connectionFlag = false;
+    return false;
   }
 
   if (!_connectToServer()) {
-    connectionFlag = false;
+    return false;
   }
 
-  return connectionFlag;
+  return true;
+}
+
+/**
+ * @brief Check if the module is already powered on, if not then it tries to
+ * power it forever.
+ *
+ */
+void UbiTCP::_guaranteePowerOn() {
+
+  if (_debug) {
+    Serial.println("Cheking Power status SIM900 module");
+  }
+
+  if (!_client_tcp->checkPowerUp()) {
+    pinMode(SIM900_POWER_UP_PIN, OUTPUT);
+    if (_debug) {
+      Serial.println("Turning on the SIM900 Module");
+    }
+    _client_tcp->powerUpDown();
+    delay(2000);
+    _guaranteePowerOn();
+  } else {
+    if (_debug) {
+      Serial.println("SIM900 status: Powered On");
+    }
+  }
 }
