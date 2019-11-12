@@ -16,6 +16,8 @@ Here you will learn how to interact with the Ubidots API using an Arduino GPRS s
 
 * [Ubidots Arduino GPRS Libray - 3.0.0.](https://github.com/ubidots/ubidots-arduino-gprs/archive/3.0.0.zip)
 
+Before running the examples, make sure you have an active data plan. You will also need your mobile operator’s APN settings (APN, USER, PASSWORD). You should be able to easily find these settings in Google or in your operator’s website.
+
 ## Setup
 1. Download the [Arduino IDE](https://www.arduino.cc/en/Main/Software).
 2. Open you IDE and click on **Sketch -> Include Library -> Manage Libraries**.
