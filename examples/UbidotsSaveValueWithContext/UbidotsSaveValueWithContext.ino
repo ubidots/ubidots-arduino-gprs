@@ -32,7 +32,7 @@ Ubidots client(TOKEN,APN,USER,PASS);
 
 void setup() {
   Serial.begin(115200);
-  client.setDebug(true);
+  client.setDebug(true); // Set true to make available debug messages
 }
 
 void loop() {
