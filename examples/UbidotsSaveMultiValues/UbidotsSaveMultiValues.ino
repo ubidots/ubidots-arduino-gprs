@@ -34,13 +34,13 @@ Ubidots client(TOKEN,APN,USER,PASS);
 
 void setup() {
   Serial.begin(115200);
-  client.setDebug(false);
+  client.setDebug(true);
 }
 
 void loop() {
   float temperature = analogRead(A0);  // Reading analog pin A0
-  float humidity = analogRead(A1);  // Reading analog pin A0
-  float pressure = analogRead(A2);  // Reading analog pin A0
+  float humidity = analogRead(A1);  // Reading analog pin A1
+  float pressure = analogRead(A2);  // Reading analog pin A2
   
   client.add(VARIABLE_LABEL_1, temperature);
   client.add(VARIABLE_LABEL_2, humidity);
