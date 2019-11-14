@@ -34,7 +34,6 @@ private:
   int _connectionTimeout = 5000;
   uint8_t _maxConnectionAttempts = 20;
   int8_t _current_value = 0;
-  bool _dirty = false;
 
   UbiToken _token;
   char _defaultDeviceLabel[18];
@@ -47,21 +46,16 @@ private:
   void buildHttpPayload(char *payload);
   void buildTcpPayload(char *payload, const char *device_label,
                        const char *device_name);
-  void _builder(UbiToken token, UbiServer server, IotProtocol iot_protocol);
-  void _builder(UbiToken token, UbiApn apn, UbiApn apnUser = BLANK,
-                UbiApn apnPass = BLANK, UbiServer server = UBI_INDUSTRIAL,
+  void _builder(UbiToken token, UbiApn apn, UbiApn apnUser,
+                UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
                 IotProtocol iotProtocol = UBI_TCP);
 
   void _floatToChar(char *value_str, float value);
 
 public:
-  explicit UbiProtocolHandler(const char *token, IotProtocol iot_protocol);
-  explicit UbiProtocolHandler(const char *token,
-                              UbiServer server = UBI_INDUSTRIAL,
-                              IotProtocol iot_protocol = UBI_TCP);
 
   explicit UbiProtocolHandler(UbiToken token, UbiApn apn,
-                              UbiApn apnUser = BLANK, UbiApn apnPass = BLANK,
+                              UbiApn apnUser, UbiApn apnPass,
                               UbiServer server = UBI_INDUSTRIAL,
                               IotProtocol iotProtocol = UBI_TCP);
 

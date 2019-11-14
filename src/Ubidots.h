@@ -33,28 +33,19 @@ private:
   bool _debug = false;
   int8_t _current_context = 0;
 
-  // Only non-Xenon devices support cloud communication
-
   char _defaultDeviceLabel[18];
   UbiProtocolHandler *_cloudProtocol;
   ContextUbi *_context;
   IotProtocol _iotProtocol;
 
-  void _builder(UbiToken token, UbiServer server, IotProtocol iot_protocol);
-
-  void _builder(UbiToken token, UbiApn apn, UbiApn apnUser = BLANK,
-                UbiApn apnPass = BLANK, UbiServer server = UBI_INDUSTRIAL,
+  void _builder(UbiToken token, UbiApn apn, UbiApn apnUser ,
+                UbiApn apnPass , UbiServer server = UBI_INDUSTRIAL,
                 IotProtocol iotProtocol = UBI_TCP);
 
-
 public:
-  explicit Ubidots(UbiToken token, IotProtocol iotProtocol);
 
-  explicit Ubidots(UbiToken token, UbiServer server = UBI_INDUSTRIAL,
-                   IotProtocol iotProtocol = UBI_TCP);
-
-  explicit Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser = BLANK,
-                   UbiApn apnPass = BLANK, UbiServer server = UBI_INDUSTRIAL,
+  explicit Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser ,
+                   UbiApn apnPass , UbiServer server = UBI_INDUSTRIAL,
                    IotProtocol iotProtocol = UBI_TCP);
 
   void add(const char *variable_label, float value);

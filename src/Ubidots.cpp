@@ -30,29 +30,14 @@ Inc
  * Overloaded constructors
  ***************************************************************************/
 
-Ubidots::Ubidots(const char *token, IotProtocol iotProtocol) {
-  _builder(token, UBI_INDUSTRIAL, iotProtocol);
-}
-
-Ubidots::Ubidots(const char *token, UbiServer server, IotProtocol iotProtocol) {
-  _builder(token, server, iotProtocol);
-}
-
 Ubidots::Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass,
                  UbiServer server, IotProtocol iotProtocol) {
   _builder(token, apn, apnUser, apnPass, server, iotProtocol);
   getDeviceIMEI(_defaultDeviceLabel);
 }
 
-void Ubidots::_builder(const char *token, UbiServer server,
-                       IotProtocol iotProtocol) {
-  _iotProtocol = iotProtocol;
-  _context = (ContextUbi *)malloc(MAX_VALUES * sizeof(ContextUbi));
-  _cloudProtocol = new UbiProtocolHandler(token, server, iotProtocol);
-}
-
-void Ubidots::_builder(UbiToken token, UbiApn apn, UbiApn apnUser = BLANK,
-                       UbiApn apnPass = BLANK,
+void Ubidots::_builder(UbiToken token, UbiApn apn, UbiApn apnUser,
+                       UbiApn apnPass,
                        UbiServer server = UBI_INDUSTRIAL,
                        IotProtocol iotProtocol = UBI_TCP) {
 

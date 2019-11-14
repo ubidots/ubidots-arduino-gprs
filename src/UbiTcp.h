@@ -43,7 +43,6 @@ class UbiTCP : public UbiProtocol {
 private:
   bool _debug = false;
   int _timeout = 5000;
-  bool _certifiedLoaded = false;
   unsigned long _timerToSync = millis();
   bool _server_connected = false;
 

@@ -44,11 +44,9 @@ UbiApn _apnPass;
 class UbiBuilder {
 
 private:
-  IotProtocol _iot_protocol;
+  IotProtocol _iotProtocol;
 
 public:
-  explicit UbiBuilder(UbiToken token, UbiServer server,
-                      IotProtocol iotProtocol);
 
   explicit UbiBuilder(UbiToken token, UbiApn apn, UbiApn apnUser,
                       UbiApn apnPass, UbiServer server,
