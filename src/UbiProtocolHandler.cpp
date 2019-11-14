@@ -44,9 +44,9 @@ void UbiProtocolHandler::_builder(UbiToken token, UbiApn apn,
                                   UbiServer server = UBI_INDUSTRIAL,
                                   IotProtocol iotProtocol = UBI_TCP) {
 
-  _iot_protocol = iotProtocol;
+  _iotProtocol = iotProtocol;
   UbiBuilder *builder =
-      new UbiBuilder(server, apn, apnUser, apnPass, token, _iot_protocol);
+      new UbiBuilder(server, apn, apnUser, apnPass, token, _iotProtocol);
   _dots = (Value *)malloc(MAX_VALUES * sizeof(Value));
   _ubiProtocol = builder->builder();
   _token = token;
@@ -107,7 +107,7 @@ bool UbiProtocolHandler::send(const char *device_label,
                               const char *device_name) {
   // Builds the payload
   char *payload = (char *)malloc(sizeof(char) * MAX_BUFFER_SIZE);
-  if (_iot_protocol == UBI_TCP || _iot_protocol == UBI_UDP) {
+  if (_iotProtocol == UBI_TCP || _iotProtocol == UBI_UDP) {
     buildTcpPayload(payload, device_label, device_name);
   } else {
     buildHttpPayload(payload);
@@ -130,7 +130,7 @@ bool UbiProtocolHandler::send(const char *device_label,
 
 float UbiProtocolHandler::get(const char *device_label,
                               const char *variable_label) {
-  if (_iot_protocol == UBI_UDP) {
+  if (_iotProtocol == UBI_UDP) {
     if (_debug) {
       Serial.println("ERROR, data retrieval is only supported using TCP or "
                      "HTTP protocol");

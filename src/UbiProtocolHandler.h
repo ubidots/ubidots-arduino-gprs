@@ -40,7 +40,7 @@ private:
   bool _debug;
 
   UbiProtocol *_ubiProtocol;
-  IotProtocol _iot_protocol;
+  IotProtocol _iotProtocol;
   Value *_dots;
 
   void buildHttpPayload(char *payload);
