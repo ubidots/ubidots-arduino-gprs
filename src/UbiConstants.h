@@ -31,7 +31,6 @@ Inc
 
 const char UBIDOTS_INDUSTRIAL_IP[] = "169.55.61.243";
 const char *const USER_AGENT = "UbidotsSIM900/3.0.0";
-static const char *BLANK = "";
 const int UBIDOTS_HTTP_PORT = 80;
 const int UBIDOTS_HTTPS_PORT = 443;
 const int UBIDOTS_TCP_PORT = 9012;

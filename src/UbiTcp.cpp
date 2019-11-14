@@ -229,7 +229,7 @@ bool UbiTCP::_isJoinedToNetwork() {
 
   // use DHCP
   while (!isJoined && attempts < 5) {
-    isJoined = _client_tcp->join(F(APN), F(""), F(""));
+    isJoined = _client_tcp->join(_F(_apn), _F(_apnUser), _F(_apnPass));
     delay(2000);
     attempts += 1;
     if (attempts == 1) {
@@ -249,7 +249,7 @@ bool UbiTCP::_isJoinedToNetwork() {
 
     if (_debug) {
       Serial.print("Trying to join to the network [");
-      Serial.print(attempts);
+      Serial.print(attempts + 1);
       Serial.println("]");
     }
 

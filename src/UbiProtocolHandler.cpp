@@ -29,39 +29,18 @@ Inc
  * Overloaded constructors
  ***************************************************************************/
 
-UbiProtocolHandler::UbiProtocolHandler(UbiToken token,
-                                       IotProtocol iotProtocol) {
-  _builder(token, UBI_INDUSTRIAL, iotProtocol);
-}
-
-UbiProtocolHandler::UbiProtocolHandler(UbiToken token, UbiServer server,
-                                       IotProtocol iotProtocol) {
-  _builder(token, server, iotProtocol);
-}
-
 UbiProtocolHandler::UbiProtocolHandler(UbiToken token, UbiApn apn,
-                                       UbiApn apnUser = BLANK,
-                                       UbiApn apnPass = BLANK,
+                                       UbiApn apnUser ,
+                                       UbiApn apnPass ,
                                        UbiServer server = UBI_INDUSTRIAL,
                                        IotProtocol iotProtocol = UBI_TCP) {
 
   _builder(token, apn, apnUser, apnPass, server, iotProtocol);
 }
 
-void UbiProtocolHandler::_builder(UbiToken token, UbiServer server,
-                                  IotProtocol iotProtocol) {
-
-  _iot_protocol = iotProtocol;
-  UbiBuilder builder(server, token, _iot_protocol);
-  _dots = (Value *)malloc(MAX_VALUES * sizeof(Value));
-  _ubiProtocol = builder.builder();
-  _token = token;
-  _current_value = 0;
-}
-
 void UbiProtocolHandler::_builder(UbiToken token, UbiApn apn,
-                                  UbiApn apnUser = BLANK,
-                                  UbiApn apnPass = BLANK,
+                                  UbiApn apnUser ,
+                                  UbiApn apnPass ,
                                   UbiServer server = UBI_INDUSTRIAL,
                                   IotProtocol iotProtocol = UBI_TCP) {
 
@@ -101,7 +80,7 @@ FUNCTIONS TO SEND DATA
 void UbiProtocolHandler::add(const char *variable_label, float value,
                              char *context, unsigned long dot_timestamp_seconds,
                              unsigned int dot_timestamp_millis) {
-  _dirty = true;
+  
   (_dots + _current_value)->variable_label = variable_label;
   (_dots + _current_value)->dot_value = value;
   (_dots + _current_value)->dot_context = context;
@@ -142,7 +121,6 @@ bool UbiProtocolHandler::send(const char *device_label,
   bool result = _ubiProtocol->sendData(device_label, device_name, payload);
   free(payload);
   if (result) {
-    _dirty = false;
     _current_value = 0;
   }
 
@@ -155,7 +133,7 @@ float UbiProtocolHandler::get(const char *device_label,
   if (_iot_protocol == UBI_UDP) {
     if (_debug) {
       Serial.println("ERROR, data retrieval is only supported using TCP or "
-                     "HTTP protocols");
+                     "HTTP protocol");
     }
     return ERROR_VALUE;
   }

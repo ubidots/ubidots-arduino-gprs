@@ -26,18 +26,11 @@ Inc
 #include "UbiBuilder.h"
 #include "UbiTcp.h"
 
-UbiBuilder::UbiBuilder(UbiToken token, UbiServer server,
-                       IotProtocol iot_protocol) {
-  _iot_protocol = iot_protocol;
-  _server = server;
-  _token = token;
-}
-
 UbiBuilder::UbiBuilder(UbiToken token, UbiApn apn, UbiApn apnUser,
                        UbiApn apnPass, UbiServer server,
                        IotProtocol iotProtocol) {
 
-  _iot_protocol = iotProtocol;
+  _iotProtocol = iotProtocol;
   _server = server;
   _token = token;
   _apn = apn;
