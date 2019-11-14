@@ -37,8 +37,7 @@ Ubidots::Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass,
 }
 
 void Ubidots::_builder(UbiToken token, UbiApn apn, UbiApn apnUser,
-                       UbiApn apnPass,
-                       UbiServer server = UBI_INDUSTRIAL,
+                       UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
                        IotProtocol iotProtocol = UBI_TCP) {
 
   _iotProtocol = iotProtocol;
@@ -204,13 +203,14 @@ void Ubidots::getDeviceIMEI(char IMEI[]) {
       response[ret] = '\0';
     }
     strcpy(IMEI, response);
+
+    free(response);
   };
 
   if (gprs == NULL) {
     gprs = new GPRS(7, 8, 19200); // RX TX BAUDRATE
     getIMEI(gprs, IMEI);
-  }
-  else {
+  } else {
     getIMEI(gprs, IMEI);
   }
 }
