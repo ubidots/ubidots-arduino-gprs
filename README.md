@@ -19,16 +19,18 @@ Here you will learn how to interact with the Ubidots API using an Arduino GPRS s
 Before running the examples, make sure you have an active data plan. You will also need your mobile operator’s APN settings (APN, USER, PASSWORD). You should be able to easily find these settings in Google or in your operator’s website.
 
 ## Setup
-1. Download the [Arduino IDE](https://www.arduino.cc/en/Main/Software).
-2. Open you IDE and click on **Sketch -> Include Library -> Manage Libraries**.
-3. In aditional look for Ubidots GPRS, and install it.
+1. Download the [Arduino IDE](https://www.arduino.cc/en/Main/Software) from the Arduino Website linked here.
+2. After it was succesfully downloaded, install it as a normal program on windows, or follow the instructions if you are using linux/Mac. 
+3. Open the Arduino IDE, then go to **Sketch -> Include Library -> Manage Libraries**.
+4. Finally look for Ubidots GPRS, and install it.
 
 ## Alternative Setup
-1. Download the [Arduino IDE](https://www.arduino.cc/en/Main/Software).
-2. Download the **Ubidots GPRS library** [here](https://github.com/ubidots/ubidots-arduino-gprs/archive/master.zip).
-3. Now, click on **Sketch -> Include Library -> Add .ZIP Library**.
-4. Select the .ZIP file of Ubidots and then "**Accept**" or "**Choose**".
-5. Close the Arduino IDE and open it again.
+1. Download the [Arduino IDE](https://www.arduino.cc/en/Main/Software) from the Arduino Website linked here.
+2. After it was succesfully downloaded, install it as a normal program on windows, or follow the instructions if you are using linux/Mac. 
+3. Download the **Ubidots GPRS library** [here](https://github.com/ubidots/ubidots-arduino-gprs/archive/master.zip).
+4. Now, click on **Sketch -> Include Library -> Add .ZIP Library**.
+5. Select the .ZIP file of Ubidots and then "**Accept**" or "**Choose**".
+6. Close the Arduino IDE and open it again.
 
 # Documentation
 
