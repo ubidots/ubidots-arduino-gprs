@@ -46,4 +46,6 @@ void loop() {
   client.add(VARIABLE_LABEL_2, humidity);
   client.add(VARIABLE_LABEL_3, pressure);
   client.send();
+
+  delay(5000);
 }

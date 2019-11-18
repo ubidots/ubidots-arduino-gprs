@@ -38,5 +38,10 @@ void setup() {
 void loop() {
   float value = analogRead(A0);  // Reading analog pin A0
   client.add(VARIABLE_LABEL, value);  
-  client.send();
+  
+  if(client.send()){
+  	Serial.println("Data sent to Ubidots sucessfully!")
+  }
+
+  delay(5000);
 }
