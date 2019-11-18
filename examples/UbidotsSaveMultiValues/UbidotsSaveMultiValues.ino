@@ -45,7 +45,10 @@ void loop() {
   client.add(VARIABLE_LABEL_1, temperature);
   client.add(VARIABLE_LABEL_2, humidity);
   client.add(VARIABLE_LABEL_3, pressure);
-  client.send();
+  
+  if(client.send()){
+  	Serial.println("Data sent to Ubidots sucessfully!")
+  }
 
   delay(5000);
 }
