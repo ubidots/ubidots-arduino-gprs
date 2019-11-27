@@ -142,6 +142,9 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
   _client_tcp->disconnect();
 
   delay(200);
+  
+  free(endpoint);
+  free(response);
 
   return value;
 }
