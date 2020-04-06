@@ -33,27 +33,22 @@ private:
   bool _debug = false;
   int8_t _current_context = 0;
 
-  char _defaultDeviceLabel[18];
+  char _defaultDeviceLabel[18] = {0};
   UbiProtocolHandler *_cloudProtocol;
   ContextUbi *_context;
   IotProtocol _iotProtocol;
 
-  void _builder(UbiToken token, UbiApn apn, UbiApn apnUser ,
-                UbiApn apnPass , UbiServer server = UBI_INDUSTRIAL,
+  void _builder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
                 IotProtocol iotProtocol = UBI_TCP);
 
 public:
-
-  explicit Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser ,
-                   UbiApn apnPass , UbiServer server = UBI_INDUSTRIAL,
+  explicit Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
                    IotProtocol iotProtocol = UBI_TCP);
 
   void add(const char *variable_label, float value);
   void add(const char *variable_label, float value, char *context);
-  void add(const char *variable_label, float value, char *context,
-           unsigned long dot_timestamp_seconds);
-  void add(const char *variable_label, float value, char *context,
-           unsigned long dot_timestamp_seconds,
+  void add(const char *variable_label, float value, char *context, unsigned long dot_timestamp_seconds);
+  void add(const char *variable_label, float value, char *context, unsigned long dot_timestamp_seconds,
            unsigned int dot_timestamp_millis);
 
   void addContext(char *key_label, char *key_value);
@@ -70,8 +65,6 @@ public:
   void setDebug(bool debug);
 
   bool serverConnected();
-
-  void getDeviceIMEI(char IMEI[]);
 
   ~Ubidots();
 };

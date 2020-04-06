@@ -40,11 +40,8 @@ Inc
  * @param apnUser GPRS network username
  * @param apnPass GPRS network passwrod
  */
-UbiTCP::UbiTCP(UbiToken token, UbiServer server, const int port,
-               const char *user_agent, UbiApn apn, UbiApn apnUser,
+UbiTCP::UbiTCP(UbiToken token, UbiServer server, const int port, const char *user_agent, UbiApn apn, UbiApn apnUser,
                UbiApn apnPass) {
-
-  delay(200);
 
   _server = server;
   _user_agent = user_agent;
@@ -53,8 +50,7 @@ UbiTCP::UbiTCP(UbiToken token, UbiServer server, const int port,
   _apn = apn;
   _apnUser = apnUser;
   _apnPass = apnPass;
-
-  _client_tcp = new GPRS(RX, TX, BAUDRATE);
+  _client_tcp = GPRS::getInstance() == NULL ? new GPRS(RX, TX, BAUDRATE) : GPRS::getInstance();
 }
 
 /**************************************************************************
@@ -86,8 +82,7 @@ UbiTCP::~UbiTCP() {
  * @return true The data was succesfully published
  * @return false Something went wrong with the sending.
  */
-bool UbiTCP::sendData(const char *device_label, const char *device_name,
-                      char *payload) {
+bool UbiTCP::sendData(const char *device_label, const char *device_name, char *payload) {
 
   if (!_preConnectionChecks()) {
     return false;
@@ -130,8 +125,7 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
 
   char *endpoint = (char *)malloc(sizeof(char) * endpointLength + 1);
 
-  sprintf(endpoint, "GET SIM900/1.0|LV|%s|%s:%s|end HTTP/1.0\r\n\r\n", _token,
-          device_label, variable_label);
+  sprintf(endpoint, "GET SIM900/1.0|LV|%s|%s:%s|end HTTP/1.0\r\n\r\n", _token, device_label, variable_label);
 
   _client_tcp->send(endpoint, endpointLength);
 
@@ -142,7 +136,7 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
   _client_tcp->disconnect();
 
   delay(200);
-  
+
   free(endpoint);
   free(response);
 
@@ -252,13 +246,13 @@ bool UbiTCP::_isJoinedToNetwork() {
 
     if (_debug) {
       Serial.print("Trying to join to the network [");
-      Serial.print(attempts + 1);
+      Serial.print(attempts);
       Serial.println("]");
     }
 
     if (attempts == 5) {
       if (_debug) {
-        Serial.println("Error joining the network");
+        Serial.println("[ERROR] Couldn't join the network\n\n");
       }
       flag = false;
       break;
@@ -337,11 +331,9 @@ bool UbiTCP::_connectToServer() {
  * @param variable_label variable label to be updated or fetched
  * @return uint16_t  Lenght of the enpoint
  */
-uint16_t UbiTCP::_endpointLength(const char *device_label,
-                                 const char *variable_label) {
-  uint16_t endpointLength =
-      strlen("GET SIM900/1.0|LV||:|end HTTP/1.0\r\n\r\n") + strlen(_token) +
-      strlen(device_label) + strlen(variable_label);
+uint16_t UbiTCP::_endpointLength(const char *device_label, const char *variable_label) {
+  uint16_t endpointLength = strlen("GET SIM900/1.0|LV||:|end HTTP/1.0\r\n\r\n") + strlen(_token) +
+                            strlen(device_label) + strlen(variable_label);
   return endpointLength;
 }
 
@@ -426,7 +418,6 @@ bool UbiTCP::serverConnected() { return _server_connected; }
  * @return false something went wrong.
  */
 bool UbiTCP::_preConnectionChecks() {
-  /* Synchronizes time every 60 minutes */
 
   if (!_initGPRS()) {
     return false;

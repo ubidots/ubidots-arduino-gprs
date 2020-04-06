@@ -44,27 +44,20 @@ private:
   Value *_dots;
 
   void buildHttpPayload(char *payload);
-  void buildTcpPayload(char *payload, const char *device_label,
-                       const char *device_name);
-  void _builder(UbiToken token, UbiApn apn, UbiApn apnUser,
-                UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
+  void buildTcpPayload(char *payload, const char *device_label, const char *device_name);
+  void _builder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
                 IotProtocol iotProtocol = UBI_TCP);
 
   void _floatToChar(char *value_str, float value);
 
 public:
+  explicit UbiProtocolHandler(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass,
+                              UbiServer server = UBI_INDUSTRIAL, IotProtocol iotProtocol = UBI_TCP);
 
-  explicit UbiProtocolHandler(UbiToken token, UbiApn apn,
-                              UbiApn apnUser, UbiApn apnPass,
-                              UbiServer server = UBI_INDUSTRIAL,
-                              IotProtocol iotProtocol = UBI_TCP);
-
-  void add(const char *variable_label, float value, char *context,
-           unsigned long dot_timestamp_seconds,
+  void add(const char *variable_label, float value, char *context, unsigned long dot_timestamp_seconds,
            unsigned int dot_timestamp_millis);
 
-  bool send(const char *device_label,
-                                const char *device_name);
+  bool send(const char *device_label, const char *device_name);
 
   float get(const char *device_label, const char *variable_label);
 
