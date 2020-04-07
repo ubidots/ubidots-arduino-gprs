@@ -125,7 +125,7 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
 
   char *endpoint = (char *)malloc(sizeof(char) * endpointLength + 1);
 
-  sprintf(endpoint, "GET SIM900/1.0|LV|%s|%s:%s|end HTTP/1.0\r\n\r\n", _token, device_label, variable_label);
+  sprintf(endpoint, "%s|LV|%s|%s:%s|end HTTP/1.0\r\n\r\n", USER_AGENT, _token, device_label, variable_label);
 
   _client_tcp->send(endpoint, endpointLength);
 
@@ -332,7 +332,7 @@ bool UbiTCP::_connectToServer() {
  * @return uint16_t  Lenght of the enpoint
  */
 uint16_t UbiTCP::_endpointLength(const char *device_label, const char *variable_label) {
-  uint16_t endpointLength = strlen("GET SIM900/1.0|LV||:|end HTTP/1.0\r\n\r\n") + strlen(_token) +
+  uint16_t endpointLength = strlen("|LV||:|end HTTP/1.0\r\n\r\n") + strlen(USER_AGENT) + strlen(_token) +
                             strlen(device_label) + strlen(variable_label);
   return endpointLength;
 }
