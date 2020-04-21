@@ -37,13 +37,11 @@ UbiBuilder::UbiBuilder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPas
 }
 
 UbiProtocol *UbiBuilder::builder() {
-
   UbiProtocol *ubiBuilder = builderTcp();
   return ubiBuilder;
 }
 
 UbiProtocol *builderTcp() {
-  Serial.println("Ubidots builderTcp");
   UbiProtocol *tcpInstance = new UbiTCP(_token, _server, UBIDOTS_TCP_PORT, USER_AGENT, _apn, _apnUser, _apnPass);
   return tcpInstance;
 }
