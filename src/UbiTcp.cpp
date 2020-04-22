@@ -83,6 +83,9 @@ UbiTCP::~UbiTCP() {
  * @return false Something went wrong with the sending.
  */
 bool UbiTCP::sendData(const char *device_label, const char *device_name, char *payload) {
+  if (_debug) {
+    Serial.print("Start TCP Connection...\r\n");
+  }
 
   if (!_preConnectionChecks()) {
     return false;
@@ -112,6 +115,9 @@ bool UbiTCP::sendData(const char *device_label, const char *device_name, char *p
  * @return float Response value from the server
  */
 float UbiTCP::get(const char *device_label, const char *variable_label) {
+  if (_debug) {
+    Serial.print("Start TCP Connection...\r\n");
+  }
 
   if (!_preConnectionChecks()) {
     return ERROR_VALUE;
@@ -128,17 +134,17 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
   sprintf(endpoint, "%s|LV|%s|%s:%s|end HTTP/1.0\r\n\r\n", USER_AGENT, _token, device_label, variable_label);
 
   _client_tcp->send(endpoint, endpointLength);
+  free(endpoint);
 
   char *response = (char *)malloc(sizeof(char) * MAX_BUFFER_SIZE);
   float value = _parseTCPAnswer("POST", response);
+
+  free(response);
 
   _client_tcp->close();
   _client_tcp->disconnect();
 
   delay(200);
-
-  free(endpoint);
-  free(response);
 
   return value;
 }
@@ -155,30 +161,29 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
  */
 bool UbiTCP::_initGPRS() {
 
-  _guaranteePowerOn();
-
-  uint8_t attempts = 0;
-  bool flag = true;
-  if (_debug) {
-    Serial.print("Start TCP Connection...\r\n");
-    Serial.print("Initializing module...\r\n");
-  }
-
-  // use DHCP
-  while (!_client_tcp->init() && attempts < 5) {
-    delay(1000);
-    attempts += 1;
-    if (attempts == 5) {
-      flag = false;
-      break;
-    }
-
+  if (!isInitiatedModule) {
+    uint8_t attempts = 0;
+    isInitiatedModule = true;
     if (_debug) {
-      Serial.print("Checking Serial connection...\r\n");
+      Serial.print(F("Initializing module...\r\n"));
+    }
+
+    // use DHCP
+    while (!_client_tcp->init() && attempts < 5) {
+      delay(500);
+      attempts += 1;
+      if (attempts == 5) {
+        isInitiatedModule = false;
+      }
+      if (_debug) {
+        Serial.print(F("Checking Serial connection ["));
+        Serial.print(attempts);
+        Serial.println(F("]"));
+      }
     }
   }
 
-  return flag;
+  return isInitiatedModule;
 }
 
 /**
@@ -188,29 +193,39 @@ bool UbiTCP::_initGPRS() {
  * @return false The device could connect to it, probably the frequency
  */
 bool UbiTCP::_isNetworkRegistered() {
-
-  uint8_t attempts = 0;
-  bool flag = true;
-
-  // use DHCP
-  while (!_client_tcp->isNetworkRegistered() && attempts < 5) {
-    delay(1000);
-    attempts += 1;
-    if (attempts == 5) {
-      flag = false;
-      break;
-    }
-
+  if (!isNetwowrkRegistered) {
     if (_debug) {
-      Serial.println(F("Network has not been registered yet!"));
+      Serial.println(F("Registering Network into the module"));
+    }
+    uint8_t attempts = 0;
+    isNetwowrkRegistered = true;
+
+    // use DHCP
+    while (!_client_tcp->isNetworkRegistered() && attempts < 5) {
+      delay(500);
+      yield();
+      attempts += 1;
+      if (attempts == 5) {
+        isNetwowrkRegistered = false;
+      }
+
+      if (_debug) {
+        Serial.print(F("Trying to register the network ["));
+        Serial.print(attempts);
+        Serial.println(F("]"));
+      }
+    }
+
+    if (_debug && !isNetwowrkRegistered) {
+      Serial.println(F("[ERROR] Couldn't register into the network\n\n"));
+    }
+
+    if (_debug && isNetwowrkRegistered) {
+      Serial.println(F("Network has been registered into the module"));
     }
   }
 
-  if (_debug) {
-    Serial.println(F("Network has been registered into the module"));
-  }
-
-  return flag;
+  return isNetwowrkRegistered;
 }
 
 /**
@@ -313,6 +328,7 @@ bool UbiTCP::_connectToServer() {
   if (!_client_tcp->connect(TCP, UBI_INDUSTRIAL, UBIDOTS_TCP_PORT)) {
     if (_debug) {
       Serial.println(F("Error Connecting to Ubidots server"));
+      _server_connected = false;
       return false;
     }
   } else {
@@ -419,6 +435,10 @@ bool UbiTCP::serverConnected() { return _server_connected; }
  */
 bool UbiTCP::_preConnectionChecks() {
 
+  if (_guaranteePowerOn()) {
+    return false;
+  }
+
   if (!_initGPRS()) {
     return false;
   }
@@ -443,23 +463,25 @@ bool UbiTCP::_preConnectionChecks() {
  * power it forever.
  *
  */
-void UbiTCP::_guaranteePowerOn() {
+bool UbiTCP::_guaranteePowerOn() {
 
-  if (_debug) {
-    Serial.println(F("Cheking Power status SIM900 module"));
-  }
-
-  if (!_client_tcp->checkPowerUp()) {
-    pinMode(SIM900_POWER_UP_PIN, OUTPUT);
+  if (!isPoweredOn) {
     if (_debug) {
-      Serial.println(F("Turning on the SIM900 Module"));
+      Serial.println(F("Cheking Power status SIM900 module"));
     }
-    _client_tcp->powerUpDown();
-    delay(2000);
-    _guaranteePowerOn();
-  } else {
-    if (_debug) {
-      Serial.println(F("SIM900 status: Powered On"));
+    if (!_client_tcp->checkPowerUp()) {
+      pinMode(SIM900_POWER_UP_PIN, OUTPUT);
+      if (_debug) {
+        Serial.println(F("Turning on the SIM900 Module"));
+      }
+      _client_tcp->powerUpDown();
+      delay(2000);
+      _guaranteePowerOn();
+    } else {
+      isPoweredOn = true;
+      if (_debug) {
+        Serial.println(F("SIM900 status: Powered On"));
+      }
     }
   }
 }
