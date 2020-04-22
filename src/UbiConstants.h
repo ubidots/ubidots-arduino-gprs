@@ -31,10 +31,7 @@ Inc
 
 const char UBIDOTS_INDUSTRIAL_IP[] = "169.55.61.243";
 const char *const USER_AGENT = "UbidotsSIM900/4.0.1";
-const int UBIDOTS_HTTP_PORT = 80;
-const int UBIDOTS_HTTPS_PORT = 443;
 const int UBIDOTS_TCP_PORT = 9012;
-const int UBIDOTS_TCPS_PORT = 9812;
 const uint8_t MAX_VALUES = 10;
 const float ERROR_VALUE = -3.4028235E+8;
 const int MAX_BUFFER_SIZE = 700;
