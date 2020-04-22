@@ -37,7 +37,6 @@ UbiBuilder::UbiBuilder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPas
 }
 
 UbiProtocol *UbiBuilder::builder() {
-
   UbiProtocol *ubiBuilder = builderTcp();
   return ubiBuilder;
 }
