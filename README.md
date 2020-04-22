@@ -9,12 +9,9 @@ Here you will learn how to interact with the Ubidots API using an Arduino GPRS s
 * [Arduino Uno](http://arduino.cc/en/Main/ArduinoBoardUno)
 * [GPRS shield SIM900](http://www.seeedstudio.com/depot/GPRS-Shield-V20-p-1379.html)
 * [Arduino IDE 1.6.0 or higher](https://www.arduino.cc/en/Main/Software)
+* [Seeed-Studio GPRS library](https://github.com/Seeed-Studio/GPRS_SIM900)
 * [Ubidots Arduino GPRS library](https://github.com/ubidots/ubidots-arduino-gprs/archive/master.zip)
 * An active SIM card with a data plan 
-
-**NOTE:** This library is not compatible with the old versions. Find the last stable version (**3.0.0**) on the link below:
-
-* [Ubidots Arduino GPRS Libray - 3.0.0.](https://github.com/ubidots/ubidots-arduino-gprs/archive/3.0.0.zip)
 
 Before running the examples, make sure you have an active data plan. You will also need your mobile operator’s APN settings (APN, USER, PASSWORD). You should be able to easily find these settings in Google or in your operator’s website.
 
@@ -50,7 +47,7 @@ Ubidots(const char* token, const char* apn, const char* apnUser,const char* apnP
 > @apnUser, [Required]. Your APN user set by the Simcard operator, some operators don't use an user to authenticate.
 > @apnPass, [Required].  Your APN password set by the Simcard operator, some operators don't use a password to authenticate.
 > @server, [Optional], [Options] = [`UBI_INDUSTRIAL`, `UBI_EDUCATIONAL`], [Default] = `UBI_INDUSTRIAL`. The server to send data, set `UBI_EDUCATIONAL` if your account is educational type.  
-> @iot_protocol, [Optional], [Options] = [`UBI_HTTP`, `UBI_TCP`, `UBI_UDP`], [Default] = `UBI_TCP`. The IoT protocol that you will use to send or retrieve data.
+> @iot_protocol, [Optional],[Default] = `UBI_TCP`. The IoT protocol that you will use to send or retrieve data.
 
 Creates an Ubidots instance.
 

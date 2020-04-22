@@ -30,20 +30,17 @@ Inc
  * Overloaded constructors
  ***************************************************************************/
 
-Ubidots::Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass,
-                 UbiServer server, IotProtocol iotProtocol) {
+Ubidots::Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, UbiServer server,
+                 IotProtocol iotProtocol) {
   _builder(token, apn, apnUser, apnPass, server, iotProtocol);
-  getDeviceIMEI(_defaultDeviceLabel);
 }
 
-void Ubidots::_builder(UbiToken token, UbiApn apn, UbiApn apnUser,
-                       UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
+void Ubidots::_builder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
                        IotProtocol iotProtocol = UBI_TCP) {
-
   _iotProtocol = iotProtocol;
+  sprintf(_defaultDeviceLabel, DEFAULT_DEVICE_LABEL);
   _context = (ContextUbi *)malloc(MAX_VALUES * sizeof(ContextUbi));
-  _cloudProtocol =
-      new UbiProtocolHandler(token, apn, apnUser, apnPass, server, iotProtocol);
+  _cloudProtocol = new UbiProtocolHandler(token, apn, apnUser, apnPass, server, iotProtocol);
 }
 
 /**************************************************************************
@@ -70,24 +67,19 @@ FUNCTIONS TO SEND DATA
  * dot_timestamp_seconds, usefull for datalogger.
  */
 
-void Ubidots::add(const char *variable_label, float value) {
-  add(variable_label, value, NULL, NULL, NULL);
-}
+void Ubidots::add(const char *variable_label, float value) { add(variable_label, value, NULL, NULL, NULL); }
 
 void Ubidots::add(const char *variable_label, float value, char *context) {
   add(variable_label, value, context, NULL, NULL);
 }
 
-void Ubidots::add(const char *variable_label, float value, char *context,
-                  long unsigned dot_timestamp_seconds) {
+void Ubidots::add(const char *variable_label, float value, char *context, long unsigned dot_timestamp_seconds) {
   add(variable_label, value, context, dot_timestamp_seconds, NULL);
 }
 
-void Ubidots::add(const char *variable_label, float value, char *context,
-                  long unsigned dot_timestamp_seconds,
+void Ubidots::add(const char *variable_label, float value, char *context, long unsigned dot_timestamp_seconds,
                   unsigned int dot_timestamp_millis) {
-  _cloudProtocol->add(variable_label, value, context, dot_timestamp_seconds,
-                      dot_timestamp_millis);
+  _cloudProtocol->add(variable_label, value, context, dot_timestamp_seconds, dot_timestamp_millis);
 }
 
 /**
@@ -99,19 +91,13 @@ void Ubidots::add(const char *variable_label, float value, char *context,
  */
 bool Ubidots::send() { return send(_defaultDeviceLabel, _defaultDeviceLabel); }
 
-bool Ubidots::send(const char *device_label) {
-  return send(device_label, device_label);
-}
+bool Ubidots::send(const char *device_label) { return send(device_label, device_label); }
 
 bool Ubidots::send(const char *device_label, const char *device_name) {
   return _cloudProtocol->send(device_label, device_name);
 }
 
 float Ubidots::get(const char *device_label, const char *variable_label) {
-  if (_debug) {
-    Serial.println("Constructing get Request!");
-  }
-
   _cloudProtocol->get(device_label, variable_label);
 }
 
@@ -141,17 +127,14 @@ void Ubidots::addContext(char *key_label, char *key_value) {
  * Retrieves the actual stored context properly formatted
  */
 
-void Ubidots::getContext(char *context_result) {
-  getContext(context_result, _iotProtocol);
-}
+void Ubidots::getContext(char *context_result) { getContext(context_result, _iotProtocol); }
 
 void Ubidots::getContext(char *context_result, IotProtocol iotProtocol) {
   // TCP context type
   if (iotProtocol == UBI_TCP || iotProtocol == UBI_UDP) {
     sprintf(context_result, "");
     for (uint8_t i = 0; i < _current_context;) {
-      sprintf(context_result, "%s%s=%s", context_result,
-              (_context + i)->key_label, (_context + i)->key_value);
+      sprintf(context_result, "%s%s=%s", context_result, (_context + i)->key_label, (_context + i)->key_value);
       i++;
       if (i < _current_context) {
         sprintf(context_result, "%s$", context_result);
@@ -166,8 +149,7 @@ void Ubidots::getContext(char *context_result, IotProtocol iotProtocol) {
   if (iotProtocol == UBI_HTTP) {
     sprintf(context_result, "");
     for (uint8_t i = 0; i < _current_context;) {
-      sprintf(context_result, "%s\"%s\":\"%s\"", context_result,
-              (_context + i)->key_label, (_context + i)->key_value);
+      sprintf(context_result, "%s\"%s\":\"%s\"", context_result, (_context + i)->key_label, (_context + i)->key_value);
       i++;
       if (i < _current_context) {
         sprintf(context_result, "%s,", context_result);
@@ -180,37 +162,3 @@ void Ubidots::getContext(char *context_result, IotProtocol iotProtocol) {
 }
 
 bool Ubidots::serverConnected() { return _cloudProtocol->serverConnected(); }
-
-void Ubidots::getDeviceIMEI(char IMEI[]) {
-  const uint8_t IMEI_SIZE = 20;
-
-  GPRS *gprs = GPRS::getInstance();
-
-  if (_debug) {
-    Serial.println("Getting device IMEI");
-  }
-
-  auto getIMEI = [IMEI_SIZE](GPRS *gprs, char *IMEI) -> void {
-    gprs->send("AT+GSN=?");
-
-    char *response = (char *)malloc(IMEI_SIZE * sizeof(char));
-
-    while (true) {
-      int ret = gprs->recv(response, IMEI_SIZE);
-      if (ret <= 0) {
-        break;
-      }
-      response[ret] = '\0';
-    }
-    strcpy(IMEI, response);
-
-    free(response);
-  };
-
-  if (gprs == NULL) {
-    gprs = new GPRS(7, 8, 19200); // RX TX BAUDRATE
-    getIMEI(gprs, IMEI);
-  } else {
-    getIMEI(gprs, IMEI);
-  }
-}
