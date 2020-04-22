@@ -38,6 +38,7 @@ Ubidots::Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, Ubi
 void Ubidots::_builder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
                        IotProtocol iotProtocol = UBI_TCP) {
   _iotProtocol = iotProtocol;
+  sprintf(_defaultDeviceLabel, DEFAULT_DEVICE_LABEL);
   _context = (ContextUbi *)malloc(MAX_VALUES * sizeof(ContextUbi));
   _cloudProtocol = new UbiProtocolHandler(token, apn, apnUser, apnPass, server, iotProtocol);
 }

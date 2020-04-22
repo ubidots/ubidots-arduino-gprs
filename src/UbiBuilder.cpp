@@ -43,7 +43,6 @@ UbiProtocol *UbiBuilder::builder() {
 }
 
 UbiProtocol *builderTcp() {
-  Serial.println("Ubidots builderTcp");
   UbiProtocol *tcpInstance = new UbiTCP(_token, _server, UBIDOTS_TCP_PORT, USER_AGENT, _apn, _apnUser, _apnPass);
   return tcpInstance;
 }

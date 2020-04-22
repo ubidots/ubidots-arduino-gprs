@@ -118,7 +118,7 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
   }
 
   if (_debug) {
-    Serial.println("waiting to fetch...");
+    Serial.println(F("waiting to fetch..."));
   }
 
   uint16_t endpointLength = _endpointLength(device_label, variable_label);
@@ -202,12 +202,12 @@ bool UbiTCP::_isNetworkRegistered() {
     }
 
     if (_debug) {
-      Serial.println("Network has not been registered yet!");
+      Serial.println(F("Network has not been registered yet!"));
     }
   }
 
   if (_debug) {
-    Serial.println("Network has been registered into the module");
+    Serial.println(F("Network has been registered into the module"));
   }
 
   return flag;
@@ -231,28 +231,28 @@ bool UbiTCP::_isJoinedToNetwork() {
     attempts += 1;
     if (attempts == 1) {
       if (_debug) {
-        Serial.print("Network status: ");
-        Serial.println(isJoined ? "Joined" : "Not Joined");
-        Serial.println("Simcard Credentials");
-        Serial.print("Apn: ");
+        Serial.print(F("Network status: "));
+        Serial.println(isJoined ? F("Joined") : F("Not Joined"));
+        Serial.println(F("Simcard Credentials"));
+        Serial.print(F("Apn: "));
         Serial.println(_apn);
-        Serial.print("User: ");
+        Serial.print(F("User: "));
         Serial.println(_apnUser);
-        Serial.print("Pass: ");
+        Serial.print(F("Pass: "));
         Serial.println(_apnPass);
         Serial.println();
       }
     }
 
     if (_debug) {
-      Serial.print("Trying to join to the network [");
+      Serial.print(F("Trying to join to the network ["));
       Serial.print(attempts);
-      Serial.println("]");
+      Serial.println(F("]"));
     }
 
     if (attempts == 5) {
       if (_debug) {
-        Serial.println("[ERROR] Couldn't join the network\n\n");
+        Serial.println(F("[ERROR] Couldn't join the network\n\n"));
       }
       flag = false;
       break;
@@ -260,14 +260,14 @@ bool UbiTCP::_isJoinedToNetwork() {
   }
 
   if (_debug && flag) {
-    Serial.print("Network status: ");
-    Serial.println(isJoined ? "Joined" : "Not Joined");
+    Serial.print(F("Network status: "));
+    Serial.println(isJoined ? F("Joined") : F("Not Joined"));
     // successful DHCP
-    Serial.print("IP Address is ");
+    Serial.print(F("IP Address is "));
     Serial.println(_client_tcp->getIPAddress());
 
     if (!_checkIpAddress()) {
-      Serial.println("IpAddres NOT VALID!");
+      Serial.println(F("IpAddress NOT VALID!"));
       _isJoinedToNetwork();
     }
   }
@@ -312,13 +312,13 @@ bool UbiTCP::_checkIpAddress() {
 bool UbiTCP::_connectToServer() {
   if (!_client_tcp->connect(TCP, UBI_INDUSTRIAL, UBIDOTS_TCP_PORT)) {
     if (_debug) {
-      Serial.println("Error Connecting to Ubidots server");
+      Serial.println(F("Error Connecting to Ubidots server"));
       return false;
     }
   } else {
     _server_connected = true;
     if (_debug) {
-      Serial.println("Connection to Ubidots server success!");
+      Serial.println(F("Connection to Ubidots server success!"));
     }
     return true;
   }
@@ -348,29 +348,29 @@ float UbiTCP::_parseTCPAnswer(const char *request_type, char *response) {
   int j = 0;
 
   if (_debug) {
-    Serial.println("----------");
-    Serial.println("Server's response:");
+    Serial.println(F("----------"));
+    Serial.println(F("Server's response:"));
   }
 
   while (true) {
     int ret = _client_tcp->recv(response, MAX_BUFFER_SIZE);
     if (ret <= 0) {
       if (_debug) {
-        Serial.println("fetch over...");
+        Serial.println(F("fetch over..."));
       }
       break;
     }
     response[ret] = '\0';
     if (_debug) {
-      Serial.print("Recv: ");
+      Serial.print(F("Recv: "));
       Serial.print(ret);
-      Serial.print(" bytes: ");
+      Serial.print(F(" bytes: "));
       Serial.println(response);
     }
   }
 
   if (_debug) {
-    Serial.println("\n----------");
+    Serial.println(F("\n----------"));
   }
 
   response[j] = '\0';
@@ -446,20 +446,20 @@ bool UbiTCP::_preConnectionChecks() {
 void UbiTCP::_guaranteePowerOn() {
 
   if (_debug) {
-    Serial.println("Cheking Power status SIM900 module");
+    Serial.println(F("Cheking Power status SIM900 module"));
   }
 
   if (!_client_tcp->checkPowerUp()) {
     pinMode(SIM900_POWER_UP_PIN, OUTPUT);
     if (_debug) {
-      Serial.println("Turning on the SIM900 Module");
+      Serial.println(F("Turning on the SIM900 Module"));
     }
     _client_tcp->powerUpDown();
     delay(2000);
     _guaranteePowerOn();
   } else {
     if (_debug) {
-      Serial.println("SIM900 status: Powered On");
+      Serial.println(F("SIM900 status: Powered On"));
     }
   }
 }
