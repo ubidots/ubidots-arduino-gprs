@@ -103,7 +103,7 @@ bool UbiProtocolHandler::send(const char *device_label, const char *device_name)
 
   // Sends data
   if (_debug) {
-    Serial.println("Sending data...");
+    Serial.println(F("Sending data..."));
   }
 
   bool result = _ubiProtocol->sendData(device_label, device_name, payload);
