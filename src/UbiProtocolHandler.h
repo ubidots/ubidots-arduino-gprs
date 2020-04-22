@@ -43,7 +43,6 @@ private:
   IotProtocol _iotProtocol;
   Value *_dots;
 
-  void buildHttpPayload(char *payload);
   void buildTcpPayload(char *payload, const char *device_label, const char *device_name);
   void _builder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
                 IotProtocol iotProtocol = UBI_TCP);
