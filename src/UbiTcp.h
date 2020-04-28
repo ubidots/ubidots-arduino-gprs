@@ -44,7 +44,12 @@ private:
   bool _debug = false;
   int _timeout = 5000;
   unsigned long _timerToSync = millis();
-  bool _server_connected = false;
+  bool isServerConected = false;
+  bool isJoinedToNetwork = false;
+  bool isNetworkRegistered = false;
+  bool isInitiatedModule = false;
+  bool isPoweredOn = false;
+  bool isSimInserted = false;
 
   GPRS *_client_tcp;
 
@@ -57,25 +62,23 @@ private:
 
   int _port;
 
-  float _parseTCPAnswer(const char *request_type, char *response);
+  bool _isPoweredOn();
+  bool _isSimCardInserted();
   bool _initGPRS();
   bool _isNetworkRegistered();
   bool _isJoinedToNetwork();
-  bool _connectToServer();
-  bool _checkIpAddress();
-  void _guaranteePowerOn();
+  bool _isConnectedToServer();
+  float _parseTCPAnswer(const char *request_type, char *response);
 
-  uint16_t _endpointLength(const char *device_label,
-                           const char *variable_label);
+  uint16_t _endpointLength(const char *device_label, const char *variable_label);
 
   bool _preConnectionChecks();
 
 public:
-  UbiTCP(UbiToken token, UbiServer server, const int port,
-         const char *user_agent, UbiApn apn, UbiApn apnUser, UbiApn apnPass);
+  UbiTCP(UbiToken token, UbiServer server, const int port, const char *user_agent, UbiApn apn, UbiApn apnUser,
+         UbiApn apnPass);
 
-  bool sendData(const char *device_label, const char *device_name,
-                char *payload);
+  bool sendData(const char *device_label, const char *device_name, char *payload);
 
   float get(const char *device_label, const char *variable_label);
 
