@@ -133,7 +133,7 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
   _client_tcp->print(requestLine);
   free(requestLine);
 
-  float value = _parseTCPAnswer("POST");
+  float value = _parseTCPAnswer("LV");
 
   return value;
 }
@@ -221,6 +221,7 @@ bool UbiTCP::_isPoweredOn() {
     if (_debug) {
       Serial.println(F("Checking Power status SIM900 module"));
       Serial.println(F("Sim900 is Powered Off"));
+      Serial.println(F("Powering on SIM900"));
     }
     while (!isPoweredOn) {
       const uint8_t IMEI_MAX_DIGITS = 14;
