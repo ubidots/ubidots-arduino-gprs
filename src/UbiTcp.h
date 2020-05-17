@@ -26,7 +26,13 @@ Inc
 #ifndef _UbiTcp_H_
 #define _UbiTcp_H_
 
-#include <GPRS_Shield_Arduino.h>
+#define TINY_GSM_MODEM_SIM900
+#define SerialMon Serial
+#define TINY_GSM_USE_GPRS true
+
+#include <SoftwareSerial.h>
+
+#include <TinyGsmClient.h>
 
 #include "UbiProtocol.h"
 
@@ -36,7 +42,6 @@ Inc
 #define TX 8
 #define BAUDRATE 19200
 #define SIM900_POWER_UP_PIN 9
-#define APN "web.colombiamovil.com.co"
 
 class UbiTCP : public UbiProtocol {
 
@@ -44,14 +49,16 @@ private:
   bool _debug = false;
   int _timeout = 5000;
   unsigned long _timerToSync = millis();
-  bool isServerConected = false;
+  bool isConnectedToServer = false;
   bool isJoinedToNetwork = false;
   bool isNetworkRegistered = false;
   bool isInitiatedModule = false;
   bool isPoweredOn = false;
   bool isSimInserted = false;
 
-  GPRS *_client_tcp;
+  SoftwareSerial *_serialAT;
+  TinyGsm *_modem;
+  TinyGsmClient *_client_tcp;
 
   UbiServer _server;
   const char *_user_agent;
@@ -65,10 +72,13 @@ private:
   bool _isPoweredOn();
   bool _isSimCardInserted();
   bool _initGPRS();
+  bool _waitingForNetwork();
   bool _isNetworkRegistered();
   bool _isJoinedToNetwork();
+  bool _hasConnectivity();
   bool _isConnectedToServer();
-  float _parseTCPAnswer(const char *request_type, char *response);
+  void _powerUpDown();
+  float _parseTCPAnswer(const char *request_type);
 
   uint16_t _endpointLength(const char *device_label, const char *variable_label);
 

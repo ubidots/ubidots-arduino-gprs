@@ -50,7 +50,12 @@ UbiTCP::UbiTCP(UbiToken token, UbiServer server, const int port, const char *use
   _apn = apn;
   _apnUser = apnUser;
   _apnPass = apnPass;
-  _client_tcp = new GPRS(RX, TX, BAUDRATE);
+
+  _serialAT = new SoftwareSerial(RX, TX); // RX, TX
+  _modem = new TinyGsm(*_serialAT);
+  _client_tcp = new TinyGsmClient(*_modem);
+
+  _serialAT->begin(BAUDRATE);
 }
 
 /**************************************************************************
@@ -65,6 +70,8 @@ UbiTCP::~UbiTCP() {
   delete[] _apnUser;
   delete[] _apnPass;
 
+  free(_serialAT);
+  free(_modem);
   free(_client_tcp);
 }
 
@@ -83,21 +90,14 @@ UbiTCP::~UbiTCP() {
  * @return false Something went wrong with the sending.
  */
 bool UbiTCP::sendData(const char *device_label, const char *device_name, char *payload) {
-  _client_tcp->wake();
 
   if (!_preConnectionChecks()) {
     return false;
   }
 
-  _client_tcp->send(payload);
+  _client_tcp->print(payload);
 
-  /* Parses the host answer, returns true if it is 'Ok' */
-  char *response = (char *)malloc(sizeof(char) * MAX_BUFFER_SIZE);
-
-  float value = _parseTCPAnswer("POST", response);
-  free(response);
-
-  _client_tcp->sleep();
+  float value = _parseTCPAnswer("POST");
 
   return value != ERROR_VALUE;
 }
@@ -110,7 +110,6 @@ bool UbiTCP::sendData(const char *device_label, const char *device_name, char *p
  * @return float Response value from the server
  */
 float UbiTCP::get(const char *device_label, const char *variable_label) {
-  _client_tcp->wake();
 
   if (!_preConnectionChecks()) {
     return ERROR_VALUE;
@@ -122,24 +121,19 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
 
   uint16_t endpointLength = _endpointLength(device_label, variable_label);
 
-  char *endpoint = (char *)malloc(sizeof(char) * endpointLength + 1);
+  char *requestLine = (char *)malloc(sizeof(char) * endpointLength + 1);
 
-  sprintf(endpoint, "%s|LV|%s|%s:%s|end HTTP/1.0\r\n\r\n", USER_AGENT, _token, device_label, variable_label);
+  sprintf(requestLine, "%s|LV|%s|%s:%s|end HTTP/1.0\r\n\r\n", USER_AGENT, _token, device_label, variable_label);
 
   if (_debug) {
     Serial.print(F("Request: "));
-    Serial.println(endpoint);
+    Serial.println(requestLine);
   }
 
-  _client_tcp->send(endpoint, endpointLength);
-  free(endpoint);
+  _client_tcp->print(requestLine);
+  free(requestLine);
 
-  char *response = (char *)malloc(sizeof(char) * MAX_BUFFER_SIZE);
-  float value = _parseTCPAnswer("POST", response);
-
-  free(response);
-
-  _client_tcp->sleep();
+  float value = _parseTCPAnswer("POST");
 
   return value;
 }
@@ -167,41 +161,26 @@ uint16_t UbiTCP::_endpointLength(const char *device_label, const char *variable_
  * @param response [Mandatory] Buffer to contain the payload from the server
  * @return float Value from the response
  */
-float UbiTCP::_parseTCPAnswer(const char *request_type, char *response) {
-  int j = 0;
+float UbiTCP::_parseTCPAnswer(const char *request_type) {
 
   if (_debug) {
-    Serial.println(F("----------"));
-    Serial.println(F("Server's response:"));
+    Serial.println("----------");
+    Serial.println("Server's response:");
   }
+  char *readFromServer = (char *)malloc(sizeof(char) * MAX_BUFFER_SIZE);
 
-  while (true) {
-    int ret = _client_tcp->recv(response, MAX_BUFFER_SIZE);
-    if (ret <= 0) {
-      if (_debug) {
-        Serial.println(F("fetch over..."));
-      }
-      break;
-    }
-    response[ret] = '\0';
-    if (_debug) {
-      Serial.print(F("Recv: "));
-      Serial.print(ret);
-      Serial.print(F(" bytes: "));
-      Serial.println(response);
-    }
-  }
+  readFromServer = strdup(_client_tcp->readString().c_str());
 
   if (_debug) {
-    Serial.println(F("\n----------"));
+    Serial.println(readFromServer);
+    Serial.println("----------");
   }
 
-  response[j] = '\0';
   float result = ERROR_VALUE;
 
   // POST
   if (strcmp(request_type, "POST") == 0) {
-    char *pch = strstr(response, "OK");
+    char *pch = strstr(readFromServer, "OK");
     if (pch != NULL) {
       result = 1;
     }
@@ -209,10 +188,12 @@ float UbiTCP::_parseTCPAnswer(const char *request_type, char *response) {
   }
 
   // LV
-  char *pch = strchr(response, '|');
+  char *pch = strchr(readFromServer, '|');
   if (pch != NULL) {
     result = atof(pch + 1);
   }
+
+  free(readFromServer);
 
   return result;
 }
@@ -220,6 +201,16 @@ float UbiTCP::_parseTCPAnswer(const char *request_type, char *response) {
 /**************************************************************************
  * Auxiliar GPRS functions
  ***************************************************************************/
+
+void UbiTCP::_powerUpDown() {
+  // power on pulse for SIM900 Shield
+  digitalWrite(SIM900_POWER_UP_PIN, LOW);
+  delay(1000);
+  digitalWrite(SIM900_POWER_UP_PIN, HIGH);
+  delay(2000);
+  digitalWrite(SIM900_POWER_UP_PIN, LOW);
+  delay(3000);
+}
 /**
  * @brief Check if the module is already powered on, if ! then it tries to
  * power it forever.
@@ -232,19 +223,30 @@ bool UbiTCP::_isPoweredOn() {
       Serial.println(F("Sim900 is Powered Off"));
     }
     while (!isPoweredOn) {
-      isPoweredOn = _client_tcp->checkPowerUp();
+      const uint8_t IMEI_MAX_DIGITS = 14;
+      char *IMEI = (char *)malloc(sizeof(char) * IMEI_MAX_DIGITS + 1);
+      sprintf(IMEI, "");
+      sprintf(IMEI, _modem->getIMEI().c_str());
+
+      isPoweredOn = strlen(IMEI) > 0;
       pinMode(SIM900_POWER_UP_PIN, OUTPUT);
-      if (_debug) {
-        Serial.println(F("Turning on SIM900"));
-      }
+
       if (!isPoweredOn) {
-        _client_tcp->powerUpDown();
+        _powerUpDown();
       }
+
+      if (_debug) {
+        Serial.println(F("SIM900 Powered On"));
+        Serial.print(F("Modem IMEI: "));
+        Serial.println(_modem->getIMEI().c_str());
+      }
+
+      free(IMEI);
     }
   }
 
-  if (_debug) {
-    Serial.println(F("Module Powered ON"));
+  if (_debug && isPoweredOn) {
+    Serial.println(F("Module already Powered ON"));
   }
 
   return isPoweredOn;
@@ -258,10 +260,10 @@ bool UbiTCP::_isPoweredOn() {
  */
 bool UbiTCP::_isSimCardInserted() {
   if (!isSimInserted) {
-    isSimInserted = _client_tcp->checkSIMStatus();
+    isSimInserted = _modem->getSimStatus() == SIM_READY;
 
     if (_debug) {
-      Serial.println(isSimInserted ? F("Sim Card Correctly installed") : F("[ERROR] Sim Card ! FOUND"));
+      Serial.println(isSimInserted ? F("Sim Card Correctly installed") : F("[ERROR] Sim Card NOT FOUND"));
     }
   }
 
@@ -285,7 +287,7 @@ bool UbiTCP::_initGPRS() {
     }
 
     // use DHCP
-    while (!_client_tcp->init() && attempts < MAX_INIT_ATTEMPS) {
+    while (!_modem->init() && attempts < MAX_INIT_ATTEMPS) {
 
       attempts += 1;
       if (attempts == MAX_INIT_ATTEMPS) {
@@ -307,6 +309,34 @@ bool UbiTCP::_initGPRS() {
 }
 
 /**
+ * @brief Check for Available networks to connect to
+ *
+ * @return true There is an available network to connect to
+ * @return false There is no available network
+ */
+bool UbiTCP::_waitingForNetwork() {
+  const uint8_t MAX_REGISTER_ATTEMPS = 5;
+  bool isNetworkAvailable = false;
+  if (_debug) {
+    Serial.println(F("Waiting for Network"));
+  }
+  uint8_t attempts = 0;
+  while (!isNetworkAvailable && attempts < MAX_REGISTER_ATTEMPS) {
+
+    isNetworkAvailable = _modem->waitForNetwork();
+    attempts += 1;
+
+    if (_debug) {
+      Serial.print(F("Waiting for network ["));
+      Serial.print(attempts);
+      Serial.println(F("]"));
+    }
+  }
+
+  return isNetworkAvailable;
+}
+
+/**
  * @brief Extablish the phisical connection with the GPRS network
  *
  * @return true The network is accepted by the device
@@ -321,10 +351,11 @@ bool UbiTCP::_isNetworkRegistered() {
     uint8_t attempts = 0;
     isNetworkRegistered = true;
 
-    // use DHCP
-    while (!_client_tcp->isNetworkRegistered() && attempts < MAX_REGISTER_ATTEMPS) {
+    if (!_waitingForNetwork())
+      return false;
 
-      yield();
+    while (!_modem->isNetworkConnected() && attempts < MAX_REGISTER_ATTEMPS) {
+
       attempts += 1;
       if (attempts == MAX_REGISTER_ATTEMPS) {
         isNetworkRegistered = false;
@@ -353,6 +384,35 @@ bool UbiTCP::_isNetworkRegistered() {
 }
 
 /**
+ * @brief Check for a proper connection to the network (Has Ping?)
+ *
+ * @return true There is ping
+ * @return false There is no Ping
+ */
+bool UbiTCP::_hasConnectivity() {
+  const uint8_t MAX_REGISTER_ATTEMPS = 5;
+  bool isGPRSConnected = false;
+  if (_debug) {
+    Serial.println(F("Verifying network connectivity on SIM900"));
+  }
+  uint8_t attempts = 0;
+  while (!isGPRSConnected && attempts < MAX_REGISTER_ATTEMPS) {
+
+    attempts += 1;
+
+    if (_debug) {
+      Serial.print(F("Connecting SIM900 to the Network ["));
+      Serial.print(attempts);
+      Serial.println(F("]"));
+    }
+
+    isGPRSConnected = _modem->isGprsConnected();
+  }
+
+  return isGPRSConnected;
+}
+
+/**
  * @brief The GPRS establish a new connection with the service
  * TODO cast the _apn, _apnUser, _apnPass to the join method.
  *
@@ -376,18 +436,16 @@ bool UbiTCP::_isJoinedToNetwork() {
       Serial.println(_apnPass);
       Serial.println();
     }
-    // use DHCP
-    while (!_client_tcp->join(_F(_apn), _F(_apnUser), _F(_apnPass)) && attempts < MAX_JOIN_ATTEMPS) {
 
-      yield();
+    while (!_modem->gprsConnect(_apn, _apnUser, _apnPass) && attempts < MAX_JOIN_ATTEMPS) {
+
       attempts += 1;
       if (attempts == MAX_JOIN_ATTEMPS) {
         isJoinedToNetwork = false;
       }
 
       if (_debug) {
-        int signal = 0;
-        _client_tcp->getSignalStrength(&signal);
+        int16_t signal = _modem->getSignalQuality();
         Serial.print(F("Trying to join to the network ["));
         Serial.print(attempts);
         Serial.print(F("] "));
@@ -398,6 +456,9 @@ bool UbiTCP::_isJoinedToNetwork() {
                                    : signal < 85 ? F(" [GOOD]") : signal < 95 ? F(" [OK]") : F(" [WEAK]"));
       }
     }
+
+    if (!_hasConnectivity())
+      return false;
 
     if (_debug) {
       Serial.print(F("Network status: "));
@@ -424,13 +485,13 @@ bool UbiTCP::_isConnectedToServer() {
     Serial.print("Start TCP Connection...\r\n");
   }
 
-  if (!_client_tcp->is_connected()) {
+  if (!_client_tcp->connected()) {
 
-    isServerConected = _client_tcp->connect(TCP, UBI_INDUSTRIAL, UBIDOTS_TCP_PORT);
+    isConnectedToServer = _client_tcp->connect(UBI_INDUSTRIAL, UBIDOTS_TCP_PORT);
 
     if (_debug) {
-      Serial.println(isServerConected ? F("Connection to Ubidots server success!")
-                                      : F("Error Connecting to Ubidots server"));
+      Serial.println(isConnectedToServer ? F("Connection to Ubidots server success!")
+                                         : F("Error Connecting to Ubidots server"));
     }
 
   } else {
@@ -438,7 +499,7 @@ bool UbiTCP::_isConnectedToServer() {
       Serial.println(F("Connection to Ubidots server already established!"));
     }
   }
-  return isServerConected;
+  return isConnectedToServer;
 }
 
 /**************************************************************************
@@ -459,7 +520,7 @@ void UbiTCP::setDebug(bool debug) { _debug = debug; }
  * @return true Server Connected
  * @return false Server Obviusly ! connected
  */
-bool UbiTCP::serverConnected() { return isServerConected; }
+bool UbiTCP::serverConnected() { return isConnectedToServer; }
 
 /**
  * @brief Handle the proper behavior of the SIM900 before fetching or sending
@@ -474,11 +535,11 @@ bool UbiTCP::_preConnectionChecks() {
     return false;
   }
 
-  if (!_isSimCardInserted()) {
+  if (!_initGPRS()) {
     return false;
   }
 
-  if (!_initGPRS()) {
+  if (!_isSimCardInserted()) {
     return false;
   }
 
