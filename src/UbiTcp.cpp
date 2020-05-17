@@ -115,10 +115,6 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
     return ERROR_VALUE;
   }
 
-  if (_debug) {
-    Serial.println(F("waiting to fetch..."));
-  }
-
   uint16_t endpointLength = _endpointLength(device_label, variable_label);
 
   char *requestLine = (char *)malloc(sizeof(char) * endpointLength + 1);
