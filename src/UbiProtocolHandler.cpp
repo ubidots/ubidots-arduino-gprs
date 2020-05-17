@@ -37,7 +37,7 @@ UbiProtocolHandler::UbiProtocolHandler(UbiToken token, UbiApn apn, UbiApn apnUse
 void UbiProtocolHandler::_builder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass,
                                   UbiServer server = UBI_INDUSTRIAL, IotProtocol iotProtocol = UBI_TCP) {
   _iotProtocol = iotProtocol;
-  UbiBuilder *builder = new UbiBuilder(server, apn, apnUser, apnPass, token, _iotProtocol);
+  UbiBuilder *builder = new UbiBuilder(token, apn, apnUser, apnPass, server, _iotProtocol);
   _dots = (Value *)malloc(MAX_VALUES * sizeof(Value));
   _ubiProtocol = builder->builder();
   _token = token;
