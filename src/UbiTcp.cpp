@@ -160,8 +160,8 @@ uint16_t UbiTCP::_endpointLength(const char *device_label, const char *variable_
 float UbiTCP::_parseTCPAnswer(const char *request_type) {
 
   if (_debug) {
-    Serial.println("----------");
-    Serial.println("Server's response:");
+    Serial.println(F("----------"));
+    Serial.println(F("Server's response:"));
   }
   char *readFromServer = (char *)malloc(sizeof(char) * MAX_BUFFER_SIZE);
 
@@ -169,7 +169,7 @@ float UbiTCP::_parseTCPAnswer(const char *request_type) {
 
   if (_debug) {
     Serial.println(readFromServer);
-    Serial.println("----------");
+    Serial.println(F("----------"));
   }
 
   float result = ERROR_VALUE;
@@ -479,7 +479,7 @@ bool UbiTCP::_isJoinedToNetwork() {
  */
 bool UbiTCP::_isConnectedToServer() {
   if (_debug) {
-    Serial.print("Start TCP Connection...\r\n");
+    Serial.print(F("Start TCP Connection...\r\n"));
   }
 
   if (!_client_tcp->connected()) {
