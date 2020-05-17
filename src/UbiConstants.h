@@ -31,6 +31,7 @@ Inc
 
 const char UBIDOTS_INDUSTRIAL_IP[] = "169.55.61.243";
 const char *const USER_AGENT = "SIM900";
+const char DEFAULT_DEVICE_LABEL = "SIM900";
 const int UBIDOTS_TCP_PORT = 9012;
 const uint8_t MAX_VALUES = 5;
 const float ERROR_VALUE = -3.4028235E+8;

@@ -27,7 +27,6 @@ Inc
 #define _UbiTcp_H_
 
 #define TINY_GSM_MODEM_SIM900
-#define SerialMon Serial
 #define TINY_GSM_USE_GPRS true
 
 #include <SoftwareSerial.h>
@@ -35,8 +34,6 @@ Inc
 #include <TinyGsmClient.h>
 
 #include "UbiProtocol.h"
-
-#define _F(string) reinterpret_cast<__FlashStringHelper *>(const_cast<char *>(string))
 
 #define RX 7
 #define TX 8

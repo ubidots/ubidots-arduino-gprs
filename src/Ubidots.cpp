@@ -131,28 +131,13 @@ void Ubidots::getContext(char *context_result) { getContext(context_result, _iot
 
 void Ubidots::getContext(char *context_result, IotProtocol iotProtocol) {
   // TCP context type
-  if (iotProtocol == UBI_TCP || iotProtocol == UBI_UDP) {
+  if (iotProtocol == UBI_TCP ) {
     sprintf(context_result, "");
     for (uint8_t i = 0; i < _current_context;) {
       sprintf(context_result, "%s%s=%s", context_result, (_context + i)->key_label, (_context + i)->key_value);
       i++;
       if (i < _current_context) {
         sprintf(context_result, "%s$", context_result);
-      } else {
-        sprintf(context_result, "%s", context_result);
-        _current_context = 0;
-      }
-    }
-  }
-
-  // HTTP context type
-  if (iotProtocol == UBI_HTTP) {
-    sprintf(context_result, "");
-    for (uint8_t i = 0; i < _current_context;) {
-      sprintf(context_result, "%s\"%s\":\"%s\"", context_result, (_context + i)->key_label, (_context + i)->key_value);
-      i++;
-      if (i < _current_context) {
-        sprintf(context_result, "%s,", context_result);
       } else {
         sprintf(context_result, "%s", context_result);
         _current_context = 0;
