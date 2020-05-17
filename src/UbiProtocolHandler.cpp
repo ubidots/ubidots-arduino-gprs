@@ -95,10 +95,14 @@ void UbiProtocolHandler::add(const char *variable_label, float value, char *cont
 bool UbiProtocolHandler::send(const char *device_label, const char *device_name) {
   // Builds the payload
   char *payload = (char *)malloc(sizeof(char) * MAX_BUFFER_SIZE);
-  if (_iotProtocol == UBI_TCP || _iotProtocol == UBI_UDP) {
+  if (_iotProtocol == UBI_TCP) {
     buildTcpPayload(payload, device_label, device_name);
   } else {
-    buildHttpPayload(payload);
+    if (_debug) {
+      Serial.println("ERROR, wrong IoT Protocol. Only UBI_TCP supported")
+    }
+    _current_value = 0;
+    return false;
   }
 
   // Sends data
@@ -122,63 +126,6 @@ float UbiProtocolHandler::get(const char *device_label, const char *variable_lab
   value = _ubiProtocol->get(device_label, variable_label);
 
   return value;
-}
-
-/**
- * Builds the HTTP payload to send and saves it to the input char pointer.
- * @payload [Mandatory] char payload pointer to store the built structure.
- * @timestamp_global [Optional] If set, it will be used for any dot without
- * timestamp.
- */
-void UbiProtocolHandler::buildHttpPayload(char *payload) {
-  /* Builds the payload */
-  sprintf(payload, "{");
-
-  for (uint8_t i = 0; i < _current_value;) {
-    char str_value[20];
-    _floatToChar(str_value, (_dots + i)->dot_value);
-    sprintf(payload, "%s\"%s\":{\"value\":%s", payload, (_dots + i)->variable_label, str_value);
-
-    // Adds timestamp seconds
-    if ((_dots + i)->dot_timestamp_seconds != NULL) {
-      sprintf(payload, "%s,\"timestamp\":%lu", payload, (_dots + i)->dot_timestamp_seconds);
-      // Adds timestamp milliseconds
-      if ((_dots + i)->dot_timestamp_millis != NULL) {
-        char milliseconds[3];
-        int timestamp_millis = (_dots + i)->dot_timestamp_millis;
-        uint8_t units = timestamp_millis % 10;
-        uint8_t dec = (timestamp_millis / 10) % 10;
-        uint8_t hund = (timestamp_millis / 100) % 10;
-        sprintf(milliseconds, "%d%d%d", hund, dec, units);
-        sprintf(payload, "%s%s", payload, milliseconds);
-      } else {
-        sprintf(payload, "%s000", payload);
-      }
-    }
-
-    // Adds dot context
-    if ((_dots + i)->dot_context != NULL) {
-      sprintf(payload, "%s,\"context\": {%s}", payload, (_dots + i)->dot_context);
-    }
-
-    sprintf(payload, "%s}", payload);
-    i++;
-
-    if (i < _current_value) {
-      sprintf(payload, "%s,", payload);
-    } else {
-      sprintf(payload, "%s}", payload);
-      _current_value = 0;
-    }
-  }
-
-  if (_debug) {
-    Serial.println(F("----------"));
-    Serial.println(F("payload:"));
-    Serial.println(payload);
-    Serial.println(F("----------"));
-    Serial.println(F(""));
-  }
 }
 
 /**

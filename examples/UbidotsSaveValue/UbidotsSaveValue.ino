@@ -40,7 +40,7 @@ void loop() {
   client.add(VARIABLE_LABEL, value);  
   
   if(client.send()){
-  	Serial.println("Data sent to Ubidots sucessfully!")
+  	Serial.println("Data sent to Ubidots sucessfully!");
   }
 
   delay(5000);
