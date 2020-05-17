@@ -117,14 +117,6 @@ bool UbiProtocolHandler::send(const char *device_label, const char *device_name)
 }
 
 float UbiProtocolHandler::get(const char *device_label, const char *variable_label) {
-  if (_iotProtocol == UBI_UDP) {
-    if (_debug) {
-      Serial.println(F("ERROR, data retrieval is only supported using TCP or "
-                       "HTTP protocol"));
-    }
-    return ERROR_VALUE;
-  }
-
   float value = ERROR_VALUE;
 
   value = _ubiProtocol->get(device_label, variable_label);
