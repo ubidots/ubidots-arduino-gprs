@@ -1,4 +1,4 @@
-# Arduino-GPRS v4.0.0
+# Arduino-GPRS v5.0.0
 
 The GPRS Shield is based on the SIM900 module from SIMCOM. It is compatible with all boards that have the same form factor (and pinout) as a standard Arduino Board. The GPRS Shield is configured and controlled via its UART using simple AT commands. Based on the SIM900 module from SIMCOM, the GPRS Shield is like a cell phone. 
 
