@@ -119,7 +119,7 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
 
   char *requestLine = (char *)malloc(sizeof(char) * endpointLength + 1);
 
-  sprintf(requestLine, "%s|LV|%s|%s:%s|end HTTP/1.0\r\n\r\n", USER_AGENT, _token, device_label, variable_label);
+  sprintf(requestLine, "%s|LV|%s|%s:%s|end", USER_AGENT, _token, device_label, variable_label);
 
   if (_debug) {
     Serial.print(F("Request: "));
@@ -145,7 +145,7 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
  * @return uint16_t  Lenght of the enpoint
  */
 uint16_t UbiTCP::_endpointLength(const char *device_label, const char *variable_label) {
-  uint16_t endpointLength = strlen("|LV||:|end HTTP/1.0\r\n\r\n") + strlen(USER_AGENT) + strlen(_token) +
+  uint16_t endpointLength = strlen("|LV||:|end") + strlen(USER_AGENT) + strlen(_token) +
                             strlen(device_label) + strlen(variable_label);
   return endpointLength;
 }
@@ -164,8 +164,9 @@ float UbiTCP::_parseTCPAnswer(const char *request_type) {
     Serial.println(F("Server's response:"));
   }
   char *readFromServer = (char *)malloc(sizeof(char) * MAX_BUFFER_SIZE);
-
+  _client_tcp->setTimeout(3000);
   readFromServer = strdup(_client_tcp->readString().c_str());
+  _client_tcp->flush();
 
   if (_debug) {
     Serial.println(readFromServer);
@@ -207,8 +208,9 @@ void UbiTCP::_powerUpDown() {
   digitalWrite(SIM900_POWER_UP_PIN, LOW);
   delay(3000);
 }
+
 /**
- * @brief Check if the module is already powered on, if ! then it tries to
+ * @brief Check if the module is already powered on, if not then it tries to
  * power it forever.
  *
  */

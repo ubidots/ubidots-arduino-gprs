@@ -99,7 +99,7 @@ bool UbiProtocolHandler::send(const char *device_label, const char *device_name)
     buildTcpPayload(payload, device_label, device_name);
   } else {
     if (_debug) {
-      Serial.println(F("ERROR, wrong IoT Protocol. Only UBI_TCP supported"));
+      Serial.println(F("[ERROR] Wrong IoT Protocol. Only UBI_TCP supported"));
     }
     _current_value = 0;
     return false;
@@ -123,6 +123,11 @@ bool UbiProtocolHandler::send(const char *device_label, const char *device_name)
 float UbiProtocolHandler::get(const char *device_label, const char *variable_label) {
   float value = ERROR_VALUE;
 
+  // Sends data
+  if (_debug) {
+    Serial.println(F("Getting data..."));
+  }
+
   value = _ubiProtocol->get(device_label, variable_label);
 
   return value;
@@ -143,7 +148,8 @@ void UbiProtocolHandler::buildTcpPayload(char *payload, const char *device_label
   sprintf(payload, "%s=>", payload);
   for (uint8_t i = 0; i < _current_value;) {
     char str_value[20];
-    _floatToChar(str_value, (_dots + i)->dot_value);
+    dtostrf((_dots + i)->dot_value, 6, 6, str_value);
+
     sprintf(payload, "%s%s:%s", payload, (_dots + i)->variable_label, str_value);
 
     // Adds dot context
@@ -194,30 +200,6 @@ void UbiProtocolHandler::buildTcpPayload(char *payload, const char *device_label
 void UbiProtocolHandler::setDebug(bool debug) {
   _debug = debug;
   _ubiProtocol->setDebug(debug);
-}
-
-/*
- * Stores the float type value into the char array input
- * @str_value [Mandatory] char payload pointer to store the value.
- * @value [Mandatory] Float value to convert
- */
-
-void UbiProtocolHandler::_floatToChar(char *str_value, float value) {
-  char temp_arr[20];
-  sprintf(temp_arr, "%17g", value);
-  uint8_t j = 0;
-  uint8_t k = 0;
-  while (j < 20) {
-    if (temp_arr[j] != ' ') {
-      str_value[k] = temp_arr[j];
-      k++;
-    }
-    if (temp_arr[j] == '\0') {
-      str_value[k] = temp_arr[j];
-      break;
-    }
-    j++;
-  }
 }
 
 bool UbiProtocolHandler::serverConnected() { return _ubiProtocol->serverConnected(); }
