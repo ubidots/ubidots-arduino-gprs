@@ -24,7 +24,6 @@ Inc
 */
 
 #include "Ubidots.h"
-#include "GPRS_Shield_Arduino.h"
 
 /**************************************************************************
  * Overloaded constructors
@@ -131,7 +130,7 @@ void Ubidots::getContext(char *context_result) { getContext(context_result, _iot
 
 void Ubidots::getContext(char *context_result, IotProtocol iotProtocol) {
   // TCP context type
-  if (iotProtocol == UBI_TCP ) {
+  if (iotProtocol == UBI_TCP) {
     sprintf(context_result, "");
     for (uint8_t i = 0; i < _current_context;) {
       sprintf(context_result, "%s%s=%s", context_result, (_context + i)->key_label, (_context + i)->key_value);

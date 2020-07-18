@@ -31,8 +31,6 @@ Inc
 
 #include <SoftwareSerial.h>
 
-#include <TinyGsmClient.h>
-
 #include "UbiProtocol.h"
 
 #define RX 7
@@ -44,7 +42,8 @@ class UbiTCP : public UbiProtocol {
 
 private:
   bool _debug = false;
-  int _timeout = 5000;
+  long long _timer = 0;
+  char replybuffer[MAX_SERIAL_BUFFER_SIZE];
   unsigned long _timerToSync = millis();
   bool isConnectedToServer = false;
   bool isJoinedToNetwork = false;
@@ -53,9 +52,7 @@ private:
   bool isPoweredOn = false;
   bool isSimInserted = false;
 
-  SoftwareSerial *_serialAT;
-  TinyGsm *_modem;
-  TinyGsmClient *_client_tcp;
+  SoftwareSerial *Sim900;
 
   UbiServer _server;
   const char *_user_agent;
@@ -76,6 +73,10 @@ private:
   bool _isConnectedToServer();
   void _powerUpDown();
   float _parseTCPAnswer(const char *request_type);
+
+  void sendCommand(const char *command, uint16_t timeout = 3000);
+  bool sendCommandToServer(const char *payload, uint16_t timeout = 5000);
+  bool sendCommand(const char *command, const char *reply, uint16_t timeout = 600);
 
   uint16_t _endpointLength(const char *device_label, const char *variable_label);
 
