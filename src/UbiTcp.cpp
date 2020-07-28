@@ -522,8 +522,8 @@ void UbiTCP::sendCommand(const char *command, uint16_t timeout) {
   while (Sim900->available()) // Clear input buffer
     Sim900->read();
 
-  if (_debug)
-    Serial.println(command);
+  // if (_debug)
+  //   Serial.println(command);
 
   Sim900->println(command);
 
@@ -537,8 +537,8 @@ void UbiTCP::sendCommand(const char *command, uint16_t timeout) {
     }
   }
 
-  if (_debug)
-    Serial.print(replybuffer);
+  // if (_debug)
+  //   Serial.print(replybuffer);
 }
 
 bool UbiTCP::sendCommandToServer(const char *payload, uint16_t timeout) {
@@ -556,8 +556,8 @@ bool UbiTCP::sendCommandToServer(const char *payload, uint16_t timeout) {
 
   sprintf(modifiedCommand, "%s\r\n\x1A", payload);
 
-  if (_debug)
-    Serial.print(modifiedCommand);
+  // if (_debug)
+  //   Serial.print(modifiedCommand);
 
   Sim900->print(modifiedCommand);
   free(modifiedCommand);
@@ -575,8 +575,8 @@ bool UbiTCP::sendCommandToServer(const char *payload, uint16_t timeout) {
     }
   }
 
-  if (_debug)
-    Serial.print(replybuffer);
+  // if (_debug)
+  //   Serial.print(replybuffer);
 
   return gotResponse;
 }
