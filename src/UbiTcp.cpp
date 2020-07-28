@@ -304,20 +304,27 @@ bool UbiTCP::_initGPRS() {
 bool UbiTCP::_isNetworkRegistered() {
   if (!isNetworkRegistered) {
 
+    uint8_t MAX_ATTEMPS = 3;
+    uint8_t attemps = 0;
+
     if (_debug) {
       Serial.println(F("Registering module to the mobile Network"));
     }
 
-    bool CGATT = sendCommand("AT+CGATT=1", "OK", 2000);
-    bool IP_INITIAL = sendCommand("AT+CIPSTATUS", "IP INITIAL", 1000);
+    while (!isNetworkRegistered && attemps < MAX_ATTEMPS) {
+      /* code */
 
-    sendCommand("AT+CREG?");
+      bool CGATT = sendCommand("AT+CGATT=1", "OK", 2000);
+      bool IP_INITIAL = sendCommand("AT+CIPSTATUS", "IP INITIAL", 2000);
 
-    //  Check wether the device is attach to GPRS network
-    //  REG_OK_HOME = 1
-    //  REG_OK_ROAMING = 5
-    isNetworkRegistered = (strstr(replybuffer, "0,1") != NULL) || (strstr(replybuffer, "0,5") != NULL);
-    isNetworkRegistered = isNetworkRegistered && CGATT && IP_INITIAL;
+      sendCommand("AT+CREG?");
+
+      //  Check wether the device is attach to GPRS network
+      //  REG_OK_HOME = 1
+      //  REG_OK_ROAMING = 5
+      isNetworkRegistered = (strstr(replybuffer, "0,1") != NULL) || (strstr(replybuffer, "0,5") != NULL);
+      isNetworkRegistered = isNetworkRegistered && CGATT && IP_INITIAL;
+    }
 
     if (_debug) {
       Serial.println(isNetworkRegistered ? F("Network has been registered into the module")
@@ -345,6 +352,7 @@ bool UbiTCP::_hasConnectivity() {
     Serial.println(F("Verifying network connectivity on SIM900"));
 
   // Checks for the  IP Address
+  // Madatory to enable the IP STACK
   sendCommand("AT+CIFSR");
 
   if (_debug) {
@@ -352,7 +360,7 @@ bool UbiTCP::_hasConnectivity() {
     Serial.print(replybuffer); // Print the IP Address
   }
 
-  return sendCommand("AT+CIPSTATUS", "IP STATUS");
+  return sendCommand("AT+CIPSTATUS", "IP STATUS"); // Check if it was succesfull the IP STACK initialization
 }
 
 /**
@@ -373,7 +381,7 @@ bool UbiTCP::_isJoinedToNetwork() {
     if (!sendCommand("AT+CGATT?", "+CGATT: 1"))
       return false;
 
-    sendCommand("AT+CIPSHUT", "OK");
+    sendCommand("AT+CIPSHUT", "OK"); // Ready to configure
 
     const char *AT = "AT+CSTT";
 
@@ -474,7 +482,13 @@ bool UbiTCP::serverConnected() { return isConnectedToServer; }
  */
 bool UbiTCP::_preConnectionChecks() {
 
-  // ADD PDP DEACT
+  if (sendCommand("AT+CIPSTATUS", "PDP DEACT", 1500)) {
+    if (sendCommand("AT+CIPSHUT", "OK")) {
+      isInitiatedModule = false;
+      isNetworkRegistered = false;
+      isJoinedToNetwork = false;
+    }
+  }
 
   if (!_isPoweredOn()) {
     return false;
