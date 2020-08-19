@@ -26,10 +26,10 @@ Inc
 #ifndef _UbiBuilder_H_
 #define _UbiBuilder_H_
 
-#include "UbiProtocol.h"
-
 #include <stdint.h>
 #include <stdio.h>
+
+#include "UbiProtocol.h"
 
 UbiProtocol *builderTcp();
 
@@ -39,21 +39,17 @@ UbiToken _token;
 UbiApn _apn;
 UbiApn _apnUser;
 UbiApn _apnPass;
-} // namespace
+}  // namespace
 
 class UbiBuilder {
-
-private:
+ private:
   IotProtocol _iotProtocol;
 
-public:
-
-  explicit UbiBuilder(UbiToken token, UbiApn apn, UbiApn apnUser,
-                      UbiApn apnPass, UbiServer server,
+ public:
+  explicit UbiBuilder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, UbiServer server,
                       IotProtocol iotProtocol);
 
   UbiProtocol *builder();
-
 };
 
 #endif

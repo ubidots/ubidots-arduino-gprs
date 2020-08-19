@@ -39,8 +39,7 @@ Inc
 #define SIM900_POWER_UP_PIN 9
 
 class UbiTCP : public UbiProtocol {
-
-private:
+ private:
   bool _debug = false;
   long long _timer = 0;
   char replybuffer[MAX_SERIAL_BUFFER_SIZE];
@@ -82,7 +81,7 @@ private:
 
   bool _preConnectionChecks();
 
-public:
+ public:
   UbiTCP(UbiToken token, UbiServer server, const int port, const char *user_agent, UbiApn apn, UbiApn apnUser,
          UbiApn apnPass);
 

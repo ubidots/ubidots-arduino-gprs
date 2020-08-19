@@ -42,7 +42,6 @@ Inc
  */
 UbiTCP::UbiTCP(UbiToken token, UbiServer server, const int port, const char *user_agent, UbiApn apn, UbiApn apnUser,
                UbiApn apnPass) {
-
   _server = server;
   _user_agent = user_agent;
   _token = token;
@@ -51,7 +50,7 @@ UbiTCP::UbiTCP(UbiToken token, UbiServer server, const int port, const char *use
   _apnUser = apnUser;
   _apnPass = apnPass;
 
-  Sim900 = new SoftwareSerial(RX, TX); // RX, TX
+  Sim900 = new SoftwareSerial(RX, TX);  // RX, TX
 
   Sim900->begin(BAUDRATE);
 }
@@ -86,13 +85,11 @@ UbiTCP::~UbiTCP() {
  * @return false Something went wrong with the sending.
  */
 bool UbiTCP::sendData(const char *device_label, const char *device_name, char *payload) {
-
   if (!_preConnectionChecks()) {
     return false;
   }
 
-  if (!sendCommandToServer(payload))
-    return false;
+  if (!sendCommandToServer(payload)) return false;
 
   float value = _parseTCPAnswer("POST");
 
@@ -107,7 +104,6 @@ bool UbiTCP::sendData(const char *device_label, const char *device_name, char *p
  * @return float Response value from the server
  */
 float UbiTCP::get(const char *device_label, const char *variable_label) {
-
   if (!_preConnectionChecks()) {
     return ERROR_VALUE;
   }
@@ -123,8 +119,7 @@ float UbiTCP::get(const char *device_label, const char *variable_label) {
     Serial.println(requestLine);
   }
 
-  if (!sendCommandToServer(requestLine))
-    return ERROR_VALUE;
+  if (!sendCommandToServer(requestLine)) return ERROR_VALUE;
 
   free(requestLine);
   float value = _parseTCPAnswer("LV");
@@ -158,11 +153,9 @@ uint16_t UbiTCP::_endpointLength(const char *device_label, const char *variable_
  * @return float Value from the response
  */
 float UbiTCP::_parseTCPAnswer(const char *request_type) {
-
   char *ptr = strstr(replybuffer, "OK");
 
-  if (ptr == NULL)
-    return ERROR_VALUE;
+  if (ptr == NULL) return ERROR_VALUE;
 
   char *serverResponse = ptr + 4;
 
@@ -264,7 +257,6 @@ bool UbiTCP::_isSimCardInserted() {
  * @return false The device is ! reponding, probably bad Serial communication
  */
 bool UbiTCP::_initGPRS() {
-
   if (!isInitiatedModule) {
     if (_debug) {
       Serial.print(F("Initializing module...\r\n"));
@@ -277,8 +269,8 @@ bool UbiTCP::_initGPRS() {
       return true;
     }
 
-    bool CIPMODE = sendCommand("AT+CIPMODE=0", "OK");     // Set Client to non-transparent mode
-    bool CIPMUX = sendCommand("AT+CIPMUX=0", "OK", 1000); // Config device to Single Client
+    bool CIPMODE = sendCommand("AT+CIPMODE=0", "OK");      // Set Client to non-transparent mode
+    bool CIPMUX = sendCommand("AT+CIPMUX=0", "OK", 1000);  // Config device to Single Client
 
     isInitiatedModule = CIPMODE && CIPMUX;
 
@@ -303,7 +295,6 @@ bool UbiTCP::_initGPRS() {
  */
 bool UbiTCP::_isNetworkRegistered() {
   if (!isNetworkRegistered) {
-
     uint8_t MAX_ATTEMPS = 3;
     uint8_t attemps = 0;
 
@@ -332,7 +323,6 @@ bool UbiTCP::_isNetworkRegistered() {
     }
 
   } else {
-
     if (_debug) {
       Serial.println(F("Network already registered into the device"));
     }
@@ -348,8 +338,7 @@ bool UbiTCP::_isNetworkRegistered() {
  * @return false There is no Ping
  */
 bool UbiTCP::_hasConnectivity() {
-  if (_debug)
-    Serial.println(F("Verifying network connectivity on SIM900"));
+  if (_debug) Serial.println(F("Verifying network connectivity on SIM900"));
 
   // Checks for the  IP Address
   // Madatory to enable the IP STACK
@@ -357,10 +346,10 @@ bool UbiTCP::_hasConnectivity() {
 
   if (_debug) {
     Serial.println(F("IP Address: "));
-    Serial.print(replybuffer); // Print the IP Address
+    Serial.print(replybuffer);  // Print the IP Address
   }
 
-  return sendCommand("AT+CIPSTATUS", "IP STATUS"); // Check if it was succesfull the IP STACK initialization
+  return sendCommand("AT+CIPSTATUS", "IP STATUS");  // Check if it was succesfull the IP STACK initialization
 }
 
 /**
@@ -369,7 +358,6 @@ bool UbiTCP::_hasConnectivity() {
  */
 bool UbiTCP::_isJoinedToNetwork() {
   if (!isJoinedToNetwork) {
-
     if (_debug) {
       Serial.println(F("Authenticating module to network"));
     }
@@ -378,10 +366,9 @@ bool UbiTCP::_isJoinedToNetwork() {
      * Set the ip stack available to proceed to the configuration.
      * Not needed to check the status
      */
-    if (!sendCommand("AT+CGATT?", "+CGATT: 1"))
-      return false;
+    if (!sendCommand("AT+CGATT?", "+CGATT: 1")) return false;
 
-    sendCommand("AT+CIPSHUT", "OK"); // Ready to configure
+    sendCommand("AT+CIPSHUT", "OK");  // Ready to configure
 
     const char *AT = "AT+CSTT";
 
@@ -398,8 +385,7 @@ bool UbiTCP::_isJoinedToNetwork() {
 
     isJoinedToNetwork = sendCommand("AT+CIICR", "OK", 2000) && apnHandshake;
 
-    if (!_hasConnectivity())
-      return false;
+    if (!_hasConnectivity()) return false;
 
     if (_debug) {
       Serial.print(F("Network status: "));
@@ -422,19 +408,16 @@ bool UbiTCP::_isJoinedToNetwork() {
  * @return false Failed connection
  */
 bool UbiTCP::_isConnectedToServer() {
-
   if (_debug) {
     Serial.print(F("Start TCP Connection...\r\n"));
   }
 
   if (sendCommand("AT+CIPSTATUS", "CONNECT OK")) {
-    if (_debug)
-      Serial.println("Already Connected to Server");
+    if (_debug) Serial.println("Already Connected to Server");
     return true;
   }
 
   if (sendCommand("AT+CIPSTATUS", "TCP CLOSED") || sendCommand("AT+CIPSTATUS", "IP STATUS")) {
-
     const char *AT = "AT+CIPSTART=\"TCP\"";
     char *serverCommand = (char *)malloc(sizeof(char) * (strlen(AT) + strlen(UBI_INDUSTRIAL) + 4 + 10));
 
@@ -481,7 +464,6 @@ bool UbiTCP::serverConnected() { return isConnectedToServer; }
  * @return false something went wrong.
  */
 bool UbiTCP::_preConnectionChecks() {
-
   if (sendCommand("AT+CIPSTATUS", "PDP DEACT", 1500)) {
     if (sendCommand("AT+CIPSHUT", "OK")) {
       isInitiatedModule = false;
@@ -519,7 +501,7 @@ bool UbiTCP::_preConnectionChecks() {
 
 void UbiTCP::sendCommand(const char *command, uint16_t timeout) {
   memset(replybuffer, 0, MAX_SERIAL_BUFFER_SIZE);
-  while (Sim900->available()) // Clear input buffer
+  while (Sim900->available())  // Clear input buffer
     Sim900->read();
 
   // if (_debug)
@@ -542,12 +524,11 @@ void UbiTCP::sendCommand(const char *command, uint16_t timeout) {
 }
 
 bool UbiTCP::sendCommandToServer(const char *payload, uint16_t timeout) {
-  if (!sendCommand("AT+CIPSEND", ">"))
-    return false;
+  if (!sendCommand("AT+CIPSEND", ">")) return false;
 
   memset(replybuffer, 0, MAX_SERIAL_BUFFER_SIZE);
 
-  while (Sim900->available()) // Clear input buffer
+  while (Sim900->available())  // Clear input buffer
     Sim900->read();
 
   bool gotResponse = false;

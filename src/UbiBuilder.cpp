@@ -24,6 +24,7 @@ Inc
 */
 
 #include "UbiBuilder.h"
+
 #include "UbiTcp.h"
 
 UbiBuilder::UbiBuilder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, UbiServer server,

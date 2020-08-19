@@ -70,7 +70,6 @@ FUNCTIONS TO SEND DATA
  */
 void UbiProtocolHandler::add(const char *variable_label, float value, char *context,
                              unsigned long dot_timestamp_seconds, unsigned int dot_timestamp_millis) {
-
   (_dots + _current_value)->variable_label = variable_label;
   (_dots + _current_value)->dot_value = value;
   (_dots + _current_value)->dot_context = context;
