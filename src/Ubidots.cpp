@@ -25,6 +25,7 @@ Inc
 
 #include "Ubidots.h"
 
+#include "UbiUtils.h"
 /**************************************************************************
  * Overloaded constructors
  ***************************************************************************/
@@ -36,6 +37,7 @@ Ubidots::Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, Ubi
 
 void Ubidots::_builder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
                        IotProtocol iotProtocol = UBI_TCP) {
+  UbiUtils::getUniqueID(_defaultDeviceLabel);
   _iotProtocol = iotProtocol;
   _context = (ContextUbi *)malloc(MAX_VALUES * sizeof(ContextUbi));
   _cloudProtocol = new UbiProtocolHandler(token, apn, apnUser, apnPass, server, iotProtocol);
