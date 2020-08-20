@@ -98,7 +98,7 @@ bool UbiProtocolHandler::send(const char *device_label, const char *device_name)
     buildTcpPayload(payload, device_label, device_name);
   } else {
     if (_debug) {
-      Serial.println(F("[ERROR] Wrong IoT Protocol. Only UBI_TCP supported"));
+      Serial.println(F("[ERROR] wrong IoT Protocol. Only UBI_TCP is supported by this library."));
     }
     _current_value = 0;
     return false;
