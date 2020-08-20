@@ -24,8 +24,6 @@ Inc
 */
 
 #include "Ubidots.h"
-
-#include "UbiUtils.h"
 /**************************************************************************
  * Overloaded constructors
  ***************************************************************************/
@@ -89,7 +87,7 @@ void Ubidots::add(const char *variable_label, float value, char *context, long u
  * for TCP/UDP)
  * @arg flags [Optional] Particle publish flags for webhooks
  */
-bool Ubidots::send() { return send(DEFAULT_DEVICE_LABEL, DEFAULT_DEVICE_LABEL); }
+bool Ubidots::send() { return send(_defaultDeviceLabel, _defaultDeviceLabel); }
 
 bool Ubidots::send(const char *device_label) { return send(device_label, device_label); }
 

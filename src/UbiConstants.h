@@ -27,11 +27,11 @@ Inc
 #define _UbiConstants_H_
 
 #include "UbiTypes.h"
+#include "UbiUtils.h"
 #include "stdint.h"
 
 const char UBIDOTS_INDUSTRIAL_IP[] = "169.55.61.243";
-const char *const USER_AGENT = "Ubidots-Sim900/4.0.1";
-const char DEFAULT_DEVICE_LABEL = "Ubidots-Sim900/4.0.1";
+const char* const USER_AGENT = "Ubidots-Sim900/4.0.1";
 const int UBIDOTS_TCP_PORT = 9012;
 const uint8_t MAX_VALUES = 5;
 const float ERROR_VALUE = -3.4028235E+8;
