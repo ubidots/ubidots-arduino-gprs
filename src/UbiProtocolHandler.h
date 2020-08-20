@@ -29,8 +29,7 @@ Inc
 #include "UbiBuilder.h"
 
 class UbiProtocolHandler {
-
-private:
+ private:
   int _connectionTimeout = 5000;
   uint8_t _maxConnectionAttempts = 20;
   int8_t _current_value = 0;
@@ -43,14 +42,13 @@ private:
   IotProtocol _iotProtocol;
   Value *_dots;
 
-  void buildHttpPayload(char *payload);
   void buildTcpPayload(char *payload, const char *device_label, const char *device_name);
   void _builder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
                 IotProtocol iotProtocol = UBI_TCP);
 
   void _floatToChar(char *value_str, float value);
 
-public:
+ public:
   explicit UbiProtocolHandler(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass,
                               UbiServer server = UBI_INDUSTRIAL, IotProtocol iotProtocol = UBI_TCP);
 

@@ -37,7 +37,7 @@ UbiProtocolHandler::UbiProtocolHandler(UbiToken token, UbiApn apn, UbiApn apnUse
 void UbiProtocolHandler::_builder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass,
                                   UbiServer server = UBI_INDUSTRIAL, IotProtocol iotProtocol = UBI_TCP) {
   _iotProtocol = iotProtocol;
-  UbiBuilder *builder = new UbiBuilder(server, apn, apnUser, apnPass, token, _iotProtocol);
+  UbiBuilder *builder = new UbiBuilder(token, apn, apnUser, apnPass, server, _iotProtocol);
   _dots = (Value *)malloc(MAX_VALUES * sizeof(Value));
   _ubiProtocol = builder->builder();
   _token = token;
@@ -70,7 +70,6 @@ FUNCTIONS TO SEND DATA
  */
 void UbiProtocolHandler::add(const char *variable_label, float value, char *context,
                              unsigned long dot_timestamp_seconds, unsigned int dot_timestamp_millis) {
-
   (_dots + _current_value)->variable_label = variable_label;
   (_dots + _current_value)->dot_value = value;
   (_dots + _current_value)->dot_context = context;
@@ -95,15 +94,19 @@ void UbiProtocolHandler::add(const char *variable_label, float value, char *cont
 bool UbiProtocolHandler::send(const char *device_label, const char *device_name) {
   // Builds the payload
   char *payload = (char *)malloc(sizeof(char) * MAX_BUFFER_SIZE);
-  if (_iotProtocol == UBI_TCP || _iotProtocol == UBI_UDP) {
+  if (_iotProtocol == UBI_TCP) {
     buildTcpPayload(payload, device_label, device_name);
   } else {
-    buildHttpPayload(payload);
+    if (_debug) {
+      Serial.println(F("[ERROR] wrong IoT Protocol. Only UBI_TCP is supported by this library."));
+    }
+    _current_value = 0;
+    return false;
   }
 
   // Sends data
   if (_debug) {
-    Serial.println("Sending data...");
+    Serial.println(F("Sending data..."));
   }
 
   bool result = _ubiProtocol->sendData(device_label, device_name, payload);
@@ -117,76 +120,16 @@ bool UbiProtocolHandler::send(const char *device_label, const char *device_name)
 }
 
 float UbiProtocolHandler::get(const char *device_label, const char *variable_label) {
-  if (_iotProtocol == UBI_UDP) {
-    if (_debug) {
-      Serial.println("ERROR, data retrieval is only supported using TCP or "
-                     "HTTP protocol");
-    }
-    return ERROR_VALUE;
-  }
-
   float value = ERROR_VALUE;
+
+  // Sends data
+  if (_debug) {
+    Serial.println(F("Getting data..."));
+  }
 
   value = _ubiProtocol->get(device_label, variable_label);
 
   return value;
-}
-
-/**
- * Builds the HTTP payload to send and saves it to the input char pointer.
- * @payload [Mandatory] char payload pointer to store the built structure.
- * @timestamp_global [Optional] If set, it will be used for any dot without
- * timestamp.
- */
-void UbiProtocolHandler::buildHttpPayload(char *payload) {
-  /* Builds the payload */
-  sprintf(payload, "{");
-
-  for (uint8_t i = 0; i < _current_value;) {
-    char str_value[20];
-    _floatToChar(str_value, (_dots + i)->dot_value);
-    sprintf(payload, "%s\"%s\":{\"value\":%s", payload, (_dots + i)->variable_label, str_value);
-
-    // Adds timestamp seconds
-    if ((_dots + i)->dot_timestamp_seconds != NULL) {
-      sprintf(payload, "%s,\"timestamp\":%lu", payload, (_dots + i)->dot_timestamp_seconds);
-      // Adds timestamp milliseconds
-      if ((_dots + i)->dot_timestamp_millis != NULL) {
-        char milliseconds[3];
-        int timestamp_millis = (_dots + i)->dot_timestamp_millis;
-        uint8_t units = timestamp_millis % 10;
-        uint8_t dec = (timestamp_millis / 10) % 10;
-        uint8_t hund = (timestamp_millis / 100) % 10;
-        sprintf(milliseconds, "%d%d%d", hund, dec, units);
-        sprintf(payload, "%s%s", payload, milliseconds);
-      } else {
-        sprintf(payload, "%s000", payload);
-      }
-    }
-
-    // Adds dot context
-    if ((_dots + i)->dot_context != NULL) {
-      sprintf(payload, "%s,\"context\": {%s}", payload, (_dots + i)->dot_context);
-    }
-
-    sprintf(payload, "%s}", payload);
-    i++;
-
-    if (i < _current_value) {
-      sprintf(payload, "%s,", payload);
-    } else {
-      sprintf(payload, "%s}", payload);
-      _current_value = 0;
-    }
-  }
-
-  if (_debug) {
-    Serial.println("----------");
-    Serial.println("payload:");
-    Serial.println(payload);
-    Serial.println("----------");
-    Serial.println("");
-  }
 }
 
 /**
@@ -204,7 +147,8 @@ void UbiProtocolHandler::buildTcpPayload(char *payload, const char *device_label
   sprintf(payload, "%s=>", payload);
   for (uint8_t i = 0; i < _current_value;) {
     char str_value[20];
-    _floatToChar(str_value, (_dots + i)->dot_value);
+    dtostrf((_dots + i)->dot_value, 6, 6, str_value);
+
     sprintf(payload, "%s%s:%s", payload, (_dots + i)->variable_label, str_value);
 
     // Adds dot context
@@ -240,11 +184,11 @@ void UbiProtocolHandler::buildTcpPayload(char *payload, const char *device_label
   }
 
   if (_debug) {
-    Serial.println("----------");
-    Serial.println("payload:");
+    Serial.println(F("----------"));
+    Serial.println(F("payload:"));
     Serial.println(payload);
-    Serial.println("----------");
-    Serial.println("");
+    Serial.println(F("----------"));
+    Serial.println(F(""));
   }
 }
 
@@ -255,30 +199,6 @@ void UbiProtocolHandler::buildTcpPayload(char *payload, const char *device_label
 void UbiProtocolHandler::setDebug(bool debug) {
   _debug = debug;
   _ubiProtocol->setDebug(debug);
-}
-
-/*
- * Stores the float type value into the char array input
- * @str_value [Mandatory] char payload pointer to store the value.
- * @value [Mandatory] Float value to convert
- */
-
-void UbiProtocolHandler::_floatToChar(char *str_value, float value) {
-  char temp_arr[20];
-  sprintf(temp_arr, "%17g", value);
-  uint8_t j = 0;
-  uint8_t k = 0;
-  while (j < 20) {
-    if (temp_arr[j] != ' ') {
-      str_value[k] = temp_arr[j];
-      k++;
-    }
-    if (temp_arr[j] == '\0') {
-      str_value[k] = temp_arr[j];
-      break;
-    }
-    j++;
-  }
 }
 
 bool UbiProtocolHandler::serverConnected() { return _ubiProtocol->serverConnected(); }

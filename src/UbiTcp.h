@@ -26,27 +26,32 @@ Inc
 #ifndef _UbiTcp_H_
 #define _UbiTcp_H_
 
-#include <GPRS_Shield_Arduino.h>
+#define TINY_GSM_MODEM_SIM900
+#define TINY_GSM_USE_GPRS true
+
+#include <SoftwareSerial.h>
 
 #include "UbiProtocol.h"
-
-#define _F(string) reinterpret_cast<__FlashStringHelper *>(const_cast<char *>(string))
 
 #define RX 7
 #define TX 8
 #define BAUDRATE 19200
 #define SIM900_POWER_UP_PIN 9
-#define APN "web.colombiamovil.com.co"
 
 class UbiTCP : public UbiProtocol {
-
-private:
+ private:
   bool _debug = false;
-  int _timeout = 5000;
+  long long _timer = 0;
+  char replybuffer[MAX_SERIAL_BUFFER_SIZE];
   unsigned long _timerToSync = millis();
-  bool _server_connected = false;
+  bool isConnectedToServer = false;
+  bool isJoinedToNetwork = false;
+  bool isNetworkRegistered = false;
+  bool isInitiatedModule = false;
+  bool isPoweredOn = false;
+  bool isSimInserted = false;
 
-  GPRS *_client_tcp;
+  SoftwareSerial *Sim900;
 
   UbiServer _server;
   const char *_user_agent;
@@ -57,25 +62,30 @@ private:
 
   int _port;
 
-  float _parseTCPAnswer(const char *request_type, char *response);
+  bool _isPoweredOn();
+  bool _isSimCardInserted();
   bool _initGPRS();
+  bool _waitingForNetwork();
   bool _isNetworkRegistered();
   bool _isJoinedToNetwork();
-  bool _connectToServer();
-  bool _checkIpAddress();
-  void _guaranteePowerOn();
+  bool _hasConnectivity();
+  bool _isConnectedToServer();
+  void _powerUpDown();
+  float _parseTCPAnswer(const char *request_type);
 
-  uint16_t _endpointLength(const char *device_label,
-                           const char *variable_label);
+  void sendCommand(const char *command, uint16_t timeout = 3000);
+  bool sendCommandToServer(const char *payload, uint16_t timeout = 5000);
+  bool sendCommand(const char *command, const char *reply, uint16_t timeout = 600);
+
+  uint16_t _endpointLength(const char *device_label, const char *variable_label);
 
   bool _preConnectionChecks();
 
-public:
-  UbiTCP(UbiToken token, UbiServer server, const int port,
-         const char *user_agent, UbiApn apn, UbiApn apnUser, UbiApn apnPass);
+ public:
+  UbiTCP(UbiToken token, UbiServer server, const int port, const char *user_agent, UbiApn apn, UbiApn apnUser,
+         UbiApn apnPass);
 
-  bool sendData(const char *device_label, const char *device_name,
-                char *payload);
+  bool sendData(const char *device_label, const char *device_name, char *payload);
 
   float get(const char *device_label, const char *variable_label);
 

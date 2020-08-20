@@ -29,7 +29,7 @@ Inc
 #include "UbiProtocolHandler.h"
 
 class Ubidots {
-private:
+ private:
   bool _debug = false;
   int8_t _current_context = 0;
 
@@ -41,7 +41,7 @@ private:
   void _builder(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
                 IotProtocol iotProtocol = UBI_TCP);
 
-public:
+ public:
   explicit Ubidots(UbiToken token, UbiApn apn, UbiApn apnUser, UbiApn apnPass, UbiServer server = UBI_INDUSTRIAL,
                    IotProtocol iotProtocol = UBI_TCP);
 

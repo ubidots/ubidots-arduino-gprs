@@ -45,6 +45,6 @@ typedef const char *UbiApn;
 
 typedef const char *UbiToken;
 
-typedef enum { UBI_HTTP, UBI_TCP, UBI_UDP } IotProtocol;
+typedef enum { UBI_TCP } IotProtocol;
 
 #endif
