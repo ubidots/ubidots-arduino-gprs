@@ -313,7 +313,11 @@ bool UbiTCP::_isNetworkRegistered() {
       //  Check wether the device is attach to GPRS network
       //  REG_OK_HOME = 1
       //  REG_OK_ROAMING = 5
-      isNetworkRegistered = (strstr(replybuffer, "0,1") != NULL) || (strstr(replybuffer, "0,5") != NULL);
+      isNetworkRegistered = (
+          strstr(replybuffer, "0,1") != NULL) 
+          || strstr(replybuffer, "1,1") != NULL) 
+          || (strstr(replybuffer, "0,5") != NULL
+        );
       isNetworkRegistered = isNetworkRegistered && CGATT && IP_INITIAL;
     }
 
